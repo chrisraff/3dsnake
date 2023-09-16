@@ -25,6 +25,17 @@ class SnakeGame {
             this.nodes[i].position.addScaledVector(this.direction, -i);
         }
     }
+
+    tick = function()
+    {
+        for (let i = this.nodes.length - 1; i > 0; i--)
+        {
+            // ends up with same vector object
+            this.nodes[i].position.copy(this.nodes[i-1].position);
+        }
+
+        this.nodes[0].position.add(this.direction);
+    }
 }
 
 export { SnakeGame };

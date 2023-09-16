@@ -24,7 +24,9 @@ var cube_geometry;
 var mazeSize;
 
 // game state
-var game = null;
+var game;
+var moveLoopTimeoutId;
+var tickInterval = 350;
 
 var cubeMaterial;
 var darkMaterial;
@@ -82,6 +84,8 @@ function init() {
     window.addEventListener( 'keypress', onKeyPress, false);
 
     reset();
+
+    moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
 
 function reset()
@@ -92,6 +96,22 @@ function reset()
     {
         scene.add(game.nodes[i]);
     }
+}
+
+function moveLoop()
+{
+    // if (game.nextSpace matches any food coordinates)
+    // {
+    //     game.increaseLength(); // note, no need to set position of final coord since we are about to tick
+    // }
+    // if (game.nextSpace is invalid)
+    // {
+    //     // TODO game over or penalty
+    // }
+
+    game.tick();
+
+    moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
 
 function onKeyPress(event)
