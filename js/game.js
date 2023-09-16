@@ -85,12 +85,14 @@ function init() {
     window.addEventListener( 'orientationchange', onWindowResize, false );
 
     window.addEventListener( 'keypress', onKeyPress, false);
+    window.addEventListener( 'mousemove', onMouseMove, false );
 
     reset();
 
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
 
+// set initial conditions for game
 function reset()
 {
     game.init();
@@ -136,6 +138,14 @@ function onKeyPress(event)
     move(...direction);
 }
 
+let mouseX, mouseY;
+
+function onMouseMove(event)
+{
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+}
+
 function move(x, y, z)
 {
     // move
@@ -150,9 +160,30 @@ function onWindowResize() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
+function updateCameraPosition()
+{
+    // Get the total width and height of the screen
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+
+    const convFactor = Math.min(screenWidth, screenHeight);
+
+    let mouseFracX = mouseX / convFactor - 0.5;
+    let mouseFracY = mouseY / convFactor - 0.5;
+
+    // smooth the edges
+    mouseFracX = Math.tanh(3 * mouseFracX) / 2;
+    mouseFracY = Math.tanh(3 * mouseFracY) / 2;
+
+    camera.position.set(mouseFracX * 8, -mouseFracY * 8, 12);
+    camera.lookAt(0, 0, 0);
+}
+
 var animate = function ()
 {
     let delta = Math.min(fpsClock.getDelta(), 0.1);
+
+    updateCameraPosition();
 
     requestAnimationFrame( animate );
 
