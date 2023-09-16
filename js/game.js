@@ -29,7 +29,7 @@ var moveLoopTimeoutId;
 var tickInterval = 350;
 
 var cubeMaterial;
-var darkMaterial;
+var foodMaterial;
 
 function init() {
 
@@ -55,6 +55,7 @@ function init() {
 
     // materials;
     cubeMaterial = new THREE.MeshLambertMaterial( {color: '#cccccc' } );
+    foodMaterial = new THREE.MeshLambertMaterial( {color: '#ff0000' } );
 
     // set up lights
     let localLight = new THREE.PointLight( 0xffffff, 100 );
@@ -74,7 +75,9 @@ function init() {
     game = new SnakeGame();
     game.context = {
         'cubeGeometry': cube_geometry,
-        'material': cubeMaterial
+        'material': cubeMaterial,
+        'foodMaterial': foodMaterial,
+        'scene': scene
     }
 
     // setup window resize handlers
@@ -100,15 +103,6 @@ function reset()
 
 function moveLoop()
 {
-    // if (game.nextSpace matches any food coordinates)
-    // {
-    //     game.increaseLength(); // note, no need to set position of final coord since we are about to tick
-    // }
-    // if (game.nextSpace is invalid)
-    // {
-    //     // TODO game over or penalty
-    // }
-
     game.tick();
 
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
