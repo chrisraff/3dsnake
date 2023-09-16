@@ -8,6 +8,7 @@ class SnakeGame {
     {
         this.nodes = [];
         this.direction = new THREE.Vector3();
+        this.nextDirection = new THREE.Vector3();
         this.startLength = 4;
         this.context = {};
     }
@@ -15,6 +16,7 @@ class SnakeGame {
     init = function()
     {
         this.direction.set(1, 0, 0);
+        this.nextDirection.copy(this.direction);
 
         // TODO clean up previous nodes if they have unique materials
         this.nodes = [];
@@ -28,6 +30,8 @@ class SnakeGame {
 
     tick = function()
     {
+        this.direction.copy(this.nextDirection);
+
         for (let i = this.nodes.length - 1; i > 0; i--)
         {
             // ends up with same vector object
@@ -35,6 +39,15 @@ class SnakeGame {
         }
 
         this.nodes[0].position.add(this.direction);
+    }
+
+    updateDirection(x, y, z)
+    {
+        // don't allow the player to go backwards into themselves
+        if (this.direction.x == -x && this.direction.y == -y && this.direction.z == -z)
+            return;
+
+        this.nextDirection.set(x, y, z);
     }
 }
 

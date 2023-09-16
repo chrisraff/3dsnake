@@ -119,23 +119,23 @@ function onKeyPress(event)
     let direction = [0, 0, 0];
     switch (event.code)
     {
-        case 'KeyW':
-            direction[0] = 2;
-            break;
-        case 'KeyS':
-            direction[0] = -2;
-            break;
-        case 'KeyE':
-            direction[1] = 2;
-            break;
-        case 'KeyQ':
-            direction[1] = -2;
-            break;
         case 'KeyD':
-            direction[2] = 2;
+            direction[0] = 1;
             break;
         case 'KeyA':
-            direction[2] = -2;
+            direction[0] = -1;
+            break;
+        case 'KeyW':
+            direction[1] = 1;
+            break;
+        case 'KeyS':
+            direction[1] = -1;
+            break;
+        case 'KeyQ':
+            direction[2] = 1;
+            break;
+        case 'KeyE':
+            direction[2] = -1;
             break;
     }
 
@@ -145,6 +145,7 @@ function onKeyPress(event)
 function move(x, y, z)
 {
     // move
+    game.updateDirection(x, y, z);
 }
 
 function onWindowResize() {
