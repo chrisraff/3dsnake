@@ -2,6 +2,7 @@
  * @author Chris Raff / http://www.ChrisRaff.com/
  */
 import * as THREE from 'three';
+import { SnakeGame } from './snake.js';
 
 // webpage objects
 
@@ -22,43 +23,11 @@ var cube_geometry;
 
 var mazeSize;
 
-// player
-var playerNode = null;
-var mazeData = null;
+// game state
+var game = null;
 
-var wallMaterial;
+var cubeMaterial;
 var darkMaterial;
-
-function sampleUniformSphere() {
-
-    let x12 = 1;
-    let x22 = 1;
-    let x1 = 0;
-    let x2 = 0;
-
-    while (x12 + x22 >= 1) {
-
-        x1 = Math.random() * 2 - 1;
-        x2 = Math.random() * 2 - 1;
-
-        x12 = x1*x1;
-        x22 = x2*x2;
-
-    }
-
-    let sqrroot = Math.sqrt(1 - x12 - x22);
-
-    let r = Math.random();
-    r *= r;
-    r = 1 - r;
-
-    return [
-        r * (2 * x1 * sqrroot),
-        r * (2 * x2 * sqrroot),
-        r * (1 - 2 * (x12 + x22))
-    ];
-
-}
 
 function init() {
 
@@ -77,13 +46,13 @@ function init() {
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
     // set camera position
-    camera.position.set(-7, 7, 7);
+    camera.position.set(1, 1, 12);
     camera.lookAt(0, 0, 0);
 
     tmpColor = new THREE.Color();
 
     // materials;
-    wallMaterial = new THREE.MeshLambertMaterial( {color: '#cccccc' } );
+    cubeMaterial = new THREE.MeshLambertMaterial( {color: '#cccccc' } );
 
     // set up lights
     let localLight = new THREE.PointLight( 0xffffff, 100 );
@@ -96,15 +65,33 @@ function init() {
 
     cube_geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
     // const material = new MeshBasicMaterial();
-    const cube = new THREE.Mesh(cube_geometry, wallMaterial);
+    // const cube = new THREE.Mesh(cube_geometry, cubeMaterial);
 
-    scene.add(cube);
+    // scene.add(cube);
+
+    game = new SnakeGame();
+    game.context = {
+        'cubeGeometry': cube_geometry,
+        'material': cubeMaterial
+    }
 
     // setup window resize handlers
     window.addEventListener( 'resize', onWindowResize, false );
     window.addEventListener( 'orientationchange', onWindowResize, false );
 
     window.addEventListener( 'keypress', onKeyPress, false);
+
+    reset();
+}
+
+function reset()
+{
+    game.init();
+
+    for (let i = 0; i < game.nodes.length; i++)
+    {
+        scene.add(game.nodes[i]);
+    }
 }
 
 function onKeyPress(event)
