@@ -87,6 +87,23 @@ function init() {
     window.addEventListener( 'keypress', onKeyPress, false);
     window.addEventListener( 'mousemove', onMouseMove, false );
 
+    document.addEventListener('mousedown', function(event) {
+        if (event.button === 0) {
+            // Left mouse button was clicked
+            move(0, 0, -1);
+        }
+    });
+
+      // Add a contextmenu event listener for the right mouse button (button 2)
+      document.addEventListener('contextmenu', function(event) {
+        event.preventDefault(); // Prevent the default context menu from appearing
+        if (event.button === 2) {
+            // Right mouse button was clicked
+            move(0, 0, 1);
+        }
+    });
+
+    //
     reset();
 
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
