@@ -77,7 +77,8 @@ function init() {
         'cubeGeometry': cube_geometry,
         'material': cubeMaterial,
         'foodMaterial': foodMaterial,
-        'scene': scene
+        'scene': scene,
+        'document': document
     }
 
     // setup window resize handlers
@@ -192,7 +193,7 @@ function updateCameraPosition()
     mouseFracX = Math.tanh(3 * mouseFracX) / 2;
     mouseFracY = Math.tanh(3 * mouseFracY) / 2;
 
-    camera.position.set(mouseFracX * 8, -mouseFracY * 8, 12);
+    camera.position.set(-mouseFracX * 8, mouseFracY * 8, 12);
     camera.lookAt(0, 0, 0);
 }
 

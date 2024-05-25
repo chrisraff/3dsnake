@@ -13,9 +13,29 @@
 
         <title>3D Snake | Chris Raff</title>
 
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
         <style>
             body { margin: 0; }
             canvas { display: block; }
+
+            #snake-lives {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+
+                display: flex;
+                margin: 10px;
+
+                font-size: 30pt;
+            }
+
+            .prevent-highlight
+            {
+                -webkit-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
         </style>
 
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -47,5 +67,11 @@
 
         <script type="module" src="js/maze.js"></script>
         <script type="module" src="js/game.js"></script>
+
+        <div id="snake-lives" class="prevent-highlight">
+            <div class="snake-life" snake-life-idx="0">🟩</div>
+            <div class="snake-life" snake-life-idx="1">🟩</div>
+            <div class="snake-life" snake-life-idx="2">🟩</div>
+        </div>
     </body>
 </html>

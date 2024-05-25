@@ -16,6 +16,7 @@ class SnakeGame {
         this.startLength = 4;
         this.context = {};
         this.bounds = [5, 5, 5];
+        this.lifeCount = 3;
 
         this.isMakingInvalidMove = false;
     }
@@ -32,6 +33,8 @@ class SnakeGame {
         }
         this.nodes = [];
         this.foodNodes = [];
+        this.lifeCount = 3;
+        this.isMakingInvalidMove = false;
 
         for (let i = 0; i < this.startLength; i++)
         {
@@ -42,7 +45,7 @@ class SnakeGame {
 
         this.spawnFood();
 
-        this.isMakingInvalidMove = false;
+        this.context.document.querySelector('.snake-life').innerText = '🟩';
     }
 
     spawnFood = function()
@@ -64,13 +67,20 @@ class SnakeGame {
 
     tick = function()
     {
+        if (this.lifeCount == 0)
+            return;
+
         // check if the snake is about to eat itself
         tmpVector.copy(this.nodes[0].position);
         tmpVector.add(this.nextDirection);
         this.isMakingInvalidMove = this.intersectsSnake(tmpVector) && !tmpVector.equals(this.nodes[this.nodes.length-1].position);
         if (this.isMakingInvalidMove)
         {
-            // for now, just pause the game
+            // update the relevant life icon
+            this.lifeCount -= 1;
+            this.context.document.querySelector(`.snake-life[snake-life-idx='${this.lifeCount}']`).innerText = '⬛';
+
+            // do not execute any further steps this tick
             return;
         }
 
@@ -107,6 +117,9 @@ class SnakeGame {
     {
         // don't allow the player to go backwards into themselves
         if (this.direction.x == -x && this.direction.y == -y && this.direction.z == -z)
+            return;
+
+        if (Math.abs(x + y + z) != 1)
             return;
 
         this.nextDirection.set(x, y, z);
