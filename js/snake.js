@@ -16,6 +16,8 @@ class SnakeGame {
         this.startLength = 4;
         this.context = {};
         this.bounds = [5, 5, 5];
+
+        this.isMakingInvalidMove = false;
     }
 
     init = function()
@@ -39,6 +41,8 @@ class SnakeGame {
         }
 
         this.spawnFood();
+
+        this.isMakingInvalidMove = false;
     }
 
     spawnFood = function()
@@ -60,6 +64,17 @@ class SnakeGame {
 
     tick = function()
     {
+        // check if the snake is about to eat itself
+        tmpVector.copy(this.nodes[0].position);
+        tmpVector.add(this.nextDirection);
+        this.isMakingInvalidMove = this.intersectsSnake(tmpVector) && !tmpVector.equals(this.nodes[this.nodes.length-1].position);
+        if (this.isMakingInvalidMove)
+        {
+            // for now, just pause the game
+            return;
+        }
+
+        // set the new direction
         this.direction.copy(this.nextDirection);
         tmpVector.copy(this.nodes[this.nodes.length-1].position);
 
@@ -128,3 +143,4 @@ class SnakeGame {
 }
 
 export { SnakeGame };
+
