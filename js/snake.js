@@ -58,7 +58,7 @@ class SnakeGame {
         while (this.intersectsAny(tmpVector))
         {
             for (let i = 0; i < 3; i++)
-                tmpVector.setComponent(i, Math.floor(Math.random() * this.bounds[i] - this.bounds[i]/2));
+                tmpVector.setComponent(i, Math.floor(Math.random() * this.bounds[i] - Math.floor(this.bounds[i]/2)));
         }
 
         this.foodNodes[idx].position.copy(tmpVector);

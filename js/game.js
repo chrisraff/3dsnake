@@ -181,13 +181,13 @@ function onWindowResize() {
 function updateCameraPosition()
 {
     // Get the total width and height of the screen
-    const screenWidth = window.screen.width;
-    const screenHeight = window.screen.height;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
 
     const convFactor = Math.min(screenWidth, screenHeight);
 
-    let mouseFracX = mouseX / convFactor - 0.5;
-    let mouseFracY = mouseY / convFactor - 0.5;
+    let mouseFracX = (mouseX - (screenWidth  * 0.5)) / convFactor;
+    let mouseFracY = (mouseY - (screenHeight * 0.5)) / convFactor;
 
     // smooth the edges
     mouseFracX = Math.tanh(3 * mouseFracX) / 2;
