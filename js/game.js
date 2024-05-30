@@ -49,6 +49,13 @@ function init() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
+    // load grid texture
+    const loader = new THREE.TextureLoader();
+    const gridTexture = loader.load('textures/grid_texture.png');
+    gridTexture.wrapS = THREE.RepeatWrapping;
+    gridTexture.wrapT = THREE.RepeatWrapping;
+    gridTexture.repeat.set(2, 2); // Adjust for desired tiling
+
     // set camera position
     camera.position.set(1, 1, 12);
     camera.lookAt(0, 0, 0);
@@ -63,7 +70,8 @@ function init() {
     const fragmentShader = document.querySelector('#fragmentShader').textContent;
     boundsMaterial = new THREE.ShaderMaterial({
         uniforms: {
-            playerPosition: {  value: camera.position }
+            playerPosition: {  value: camera.position },
+            gridTexture: {value: gridTexture }
         },
         vertexShader: vertexShader,
         fragmentShader: fragmentShader,
