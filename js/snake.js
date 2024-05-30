@@ -43,6 +43,8 @@ class SnakeGame {
             this.context.scene.add(this.nodes[i]);
         }
 
+        this.context.boundsMesh.scale.set(...this.bounds);
+
         this.spawnFood();
 
         this.context.document.querySelector('.snake-life').innerText = '🟩';

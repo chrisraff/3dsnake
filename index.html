@@ -65,6 +65,27 @@
             }
         </script>
 
+        <script id="vertexShader" type="x-shader/x-vertex">
+            varying vec3 vWorldPosition;
+            void main() {
+                vWorldPosition = (modelMatrix * vec4(position, 1.0)).xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        </script>
+        <script id="fragmentShader" type="x-shader/x-fragment">
+            uniform vec3 playerPosition;
+            varying vec3 vWorldPosition;
+            const float maxDist = 4.0;
+
+            void main() {
+                float distance = length(playerPosition - vWorldPosition);
+                float intensity = clamp(maxDist - distance, 0.0, maxDist) / maxDist; // Highlight intensity
+                vec4 highlightColor = vec4(1.0, 0.5, 0.5, intensity);
+                vec4 baseColor = vec4(0.0, 0.0, 0.0, 0.0); // Transparent base color
+                gl_FragColor = mix(baseColor, highlightColor, intensity);
+            }
+        </script>
+
         <script type="module" src="js/maze.js"></script>
         <script type="module" src="js/game.js"></script>
 

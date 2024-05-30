@@ -20,8 +20,7 @@ const PI_2 = Math.PI / 2;
 
 // models
 var cube_geometry;
-
-var mazeSize;
+var bounds_geometry;
 
 // game state
 var game;
@@ -30,6 +29,9 @@ var tickInterval = 350;
 
 var cubeMaterial;
 var foodMaterial;
+var boundsMaterial;
+
+var boundsMesh;
 
 function init() {
 
@@ -56,6 +58,19 @@ function init() {
     // materials;
     cubeMaterial = new THREE.MeshLambertMaterial( {color: '#cccccc' } );
     foodMaterial = new THREE.MeshLambertMaterial( {color: '#ff0000' } );
+    // boundsMaterial = new THREE.MeshLambertMaterial( {color: 'rgba(200,200,200,0)', side: THREE.BackSide, specular: 0xffffff } );
+    const vertexShader = document.querySelector('#vertexShader').textContent;
+    const fragmentShader = document.querySelector('#fragmentShader').textContent;
+    boundsMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            playerPosition: {  value: camera.position }
+        },
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader,
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide
+    });
 
     // set up lights
     let localLight = new THREE.PointLight( 0xffffff, 100 );
@@ -67,8 +82,12 @@ function init() {
     // tmpVector = new THREE.Vector3();
 
     cube_geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
+    bounds_geometry = new THREE.BoxGeometry(1, 1, 1);
     // const material = new MeshBasicMaterial();
     // const cube = new THREE.Mesh(cube_geometry, cubeMaterial);
+
+    boundsMesh = new THREE.Mesh(bounds_geometry, boundsMaterial);
+    scene.add(boundsMesh);
 
     // scene.add(cube);
 
@@ -77,6 +96,7 @@ function init() {
         'cubeGeometry': cube_geometry,
         'material': cubeMaterial,
         'foodMaterial': foodMaterial,
+        'boundsMesh': boundsMesh,
         'scene': scene,
         'document': document
     }
@@ -124,6 +144,8 @@ function reset()
 function moveLoop()
 {
     game.tick();
+
+    boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
 
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
