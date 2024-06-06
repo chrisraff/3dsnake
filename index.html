@@ -80,14 +80,43 @@
             const float maxDist = 4.0;
 
             void main() {
+                // Compute the highlighting for this fragment based on player distance
                 float distance = length(playerPosition - vWorldPosition);
                 float intensity = clamp(maxDist - distance, 0.0, maxDist) / maxDist; // Highlight intensity
 
-                // vec4 highlightColor = vec4(1.0, 0.5, 0.5, intensity);
-                vec2 uv = vWorldPosition.xy + 0.5;
-                uv.y += vWorldPosition.z + 0.5;
-                vec4 baseColor = texture2D(gridTexture, uv) * intensity;
-                gl_FragColor = baseColor;
+                // Compute the uv for the grid texture
+                vec3 normalizedPos = vWorldPosition + 0.5;
+
+                vec2 uv;
+                vec3 absPos = abs(vWorldPosition);
+
+                if (absPos.z >= absPos.x && absPos.z >= absPos.y) {
+                    if (vWorldPosition.z > 0.0) {
+                        // Front face
+                        uv = normalizedPos.xy;
+                    } else {
+                        // Back face
+                        uv = vec2(normalizedPos.x, 1.0 - normalizedPos.y);
+                    }
+                } else if (absPos.x >= absPos.y && absPos.x >= absPos.z) {
+                    if (vWorldPosition.x > 0.0) {
+                        // Right face
+                        uv = vec2(normalizedPos.z, normalizedPos.y);
+                    } else {
+                        // Left face
+                        uv = vec2(1.0 - normalizedPos.z, normalizedPos.y);
+                    }
+                } else {
+                    if (vWorldPosition.y > 0.0) {
+                        // Top face
+                        uv = vec2(normalizedPos.x, normalizedPos.z);
+                    } else {
+                        // Bottom face
+                        uv = vec2(normalizedPos.x, 1.0 - normalizedPos.z);
+                    }
+                }
+
+                gl_FragColor = texture2D(gridTexture, uv) * intensity;
             }
         </script>
 
