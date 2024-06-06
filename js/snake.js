@@ -15,7 +15,8 @@ class SnakeGame {
         this.nextDirection = new THREE.Vector3();
         this.startLength = 4;
         this.context = {};
-        this.bounds = [5, 5, 5];
+        this.foodBounds = [5, 5, 5];
+        this.bounds = [13, 13, 13];
         this.lifeCount = 3;
 
         this.isMakingInvalidMove = false;
@@ -60,7 +61,7 @@ class SnakeGame {
         while (this.intersectsAny(tmpVector))
         {
             for (let i = 0; i < 3; i++)
-                tmpVector.setComponent(i, Math.floor(Math.random() * this.bounds[i] - Math.floor(this.bounds[i]/2)));
+                tmpVector.setComponent(i, Math.floor(Math.random() * this.foodBounds[i] - Math.floor(this.foodBounds[i]/2)));
         }
 
         this.foodNodes[idx].position.copy(tmpVector);
@@ -76,6 +77,7 @@ class SnakeGame {
         tmpVector.copy(this.nodes[0].position);
         tmpVector.add(this.nextDirection);
         this.isMakingInvalidMove = this.intersectsSnake(tmpVector) && !tmpVector.equals(this.nodes[this.nodes.length-1].position);
+        this.isMakingInvalidMove = this.isMakingInvalidMove || this.outOfBounds(tmpVector);
         if (this.isMakingInvalidMove)
         {
             // update the relevant life icon
@@ -154,6 +156,19 @@ class SnakeGame {
             }
         }
         return null;
+    }
+
+    outOfBounds = function(vec)
+    {
+        for (let i = 0; i < 3; i++)
+        {
+            if (Math.abs(vec[['x', 'y', 'z'][i]]) > this.bounds[i]/2)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
