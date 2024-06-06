@@ -155,6 +155,8 @@ function moveLoop()
 
     boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
 
+    document.querySelector('#snake-realtime-length').innerHTML = game.nodes.length;
+
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
 

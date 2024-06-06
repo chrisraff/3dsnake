@@ -9,23 +9,28 @@
         <meta name="theme-color" content="#dddddd">
 
         <meta property="og:title" content="3D Snake | Chris Raff" />
-        <meta property="og:description" content="Fully three dimensional mazes" />
+        <meta property="og:description" content="Classic snake game, but in a cube" />
 
         <title>3D Snake | Chris Raff</title>
 
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
         <style>
-            body { margin: 0; }
+            body {
+                margin: 0;
+                color: white;
+            }
             canvas { display: block; }
 
-            #snake-lives {
+            #lower-left-quarter {
                 position: absolute;
                 bottom: 0;
                 left: 0;
 
-                display: flex;
                 margin: 10px;
+            }
+            #snake-lives {
+                display: flex;
 
                 font-size: 30pt;
             }
@@ -122,10 +127,15 @@
 
         <script type="module" src="js/game.js"></script>
 
-        <div id="snake-lives" class="prevent-highlight">
-            <div class="snake-life" snake-life-idx="0">🟩</div>
-            <div class="snake-life" snake-life-idx="1">🟩</div>
-            <div class="snake-life" snake-life-idx="2">🟩</div>
+        <div id="lower-left-quarter">
+            <div>
+                Length: <span id="snake-realtime-length">4</span>
+            </div>
+            <div id="snake-lives" class="prevent-highlight">
+                <div class="snake-life" snake-life-idx="0">🟩</div>
+                <div class="snake-life" snake-life-idx="1">🟩</div>
+                <div class="snake-life" snake-life-idx="2">🟩</div>
+            </div>
         </div>
     </body>
 </html>
