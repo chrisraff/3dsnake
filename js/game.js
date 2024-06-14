@@ -26,6 +26,7 @@ var bounds_geometry;
 var game;
 var moveLoopTimeoutId;
 var tickInterval = 350;
+var playing = false;
 
 var cubeMaterial;
 var foodMaterial;
@@ -65,7 +66,7 @@ function init() {
     // materials;
     cubeMaterial = new THREE.MeshLambertMaterial( {color: '#cccccc' } );
     foodMaterial = new THREE.MeshLambertMaterial( {color: '#ff0000' } );
-    // boundsMaterial = new THREE.MeshLambertMaterial( {color: 'rgba(200,200,200,0)', side: THREE.BackSide, specular: 0xffffff } );
+
     const vertexShader = document.querySelector('#vertexShader').textContent;
     const fragmentShader = document.querySelector('#fragmentShader').textContent;
     boundsMaterial = new THREE.ShaderMaterial({
@@ -123,8 +124,8 @@ function init() {
         }
     });
 
-      // Add a contextmenu event listener for the right mouse button (button 2)
-      document.addEventListener('contextmenu', function(event) {
+    // Add a contextmenu event listener for the right mouse button (button 2)
+    document.addEventListener('contextmenu', function(event) {
         event.preventDefault(); // Prevent the default context menu from appearing
         if (event.button === 2) {
             // Right mouse button was clicked
@@ -134,8 +135,6 @@ function init() {
 
     //
     reset();
-
-    moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
 
 // set initial conditions for game
@@ -198,16 +197,31 @@ function onMouseMove(event)
 
 function move(x, y, z)
 {
+    if (!playing)
+        return;
+
     // move
     game.updateDirection(x, y, z);
 }
 
-function onWindowResize() {
-
+function onWindowResize()
+{
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
     renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+function setMenu(menuId)
+{
+    document.querySelectorAll('.menu').forEach(menu => {
+        menu.classList.remove('menu-active');
+    });
+
+    if (menuId == null)
+        return;
+
+    document.getElementById(menuId).classList.add('menu-active');
 }
 
 function updateCameraPosition()
@@ -241,5 +255,17 @@ var animate = function ()
 };
 
 init();
+
+// setup buttons
+document.querySelector('#button-play').onclick = (event) =>
+{
+    setMenu(null);
+    moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
+    playing = true;
+}
+document.querySelector('#button-options').onclick = () =>
+{
+    setMenu(menu-options);
+}
 
 animate();

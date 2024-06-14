@@ -35,6 +35,51 @@
                 font-size: 30pt;
             }
 
+            #menu-overlay {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .menu {
+                display: none;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .menu > * {
+                margin: 10px;
+            }
+
+            .menu.menu-active {
+                display: flex;
+            }
+
+            .menu button {
+                background-color: transparent;
+                color: white;
+                border: 2px solid white;
+                border-radius: 7px;
+                padding: 8px 15px;
+                font-size: 16px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                outline: none;
+                align-self: center;
+            }
+
+            button.button-main {
+                font-size: 24pt;
+                padding: 10px 20px;
+                width: 120%;
+            }
+
+            .menu button:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
             .prevent-highlight
             {
                 -webkit-user-select: none;
@@ -54,7 +99,8 @@
         </script>
 
     </head>
-    <body>
+
+    <body class="prevent-highlight">
         <!-- <script type="text/javascript" src="js/detectmobilebrowser.js"></script> -->
 
         <!-- Import maps polyfill -->
@@ -135,6 +181,13 @@
                 <div class="snake-life" snake-life-idx="0">🟩</div>
                 <div class="snake-life" snake-life-idx="1">🟩</div>
                 <div class="snake-life" snake-life-idx="2">🟩</div>
+            </div>
+        </div>
+
+        <div id="menu-overlay">
+            <div id="menu-main" class="menu menu-active">
+                <button id="button-play" class="button-main">Play</button>
+                <button id="button-options">Options</button>
             </div>
         </div>
     </body>
