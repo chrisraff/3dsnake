@@ -314,6 +314,8 @@ var animate = function ()
 init();
 
 // setup buttons
+let menuQueue = [];
+
 document.querySelectorAll('.button-play').forEach(button => {
     button.onclick = () => {
         setMenu(null);
@@ -331,14 +333,25 @@ document.querySelectorAll('.button-play').forEach(button => {
 document.querySelectorAll('.button-options').forEach(button => {
     button.onclick = () =>
     {
+        // push the current menu onto the queue
+        const currentMenuId = document.querySelector('.menu.menu-active').id;
+        menuQueue.push(currentMenuId);
         setMenu('menu-options');
     }
 });
 
-document.querySelectorAll('.button-to-main').forEach(button => {
+document.querySelectorAll('.button-back').forEach(button => {
     button.onclick = () =>
     {
-        setMenu('menu-main');
+        // pop the menu queue
+        if (menuQueue.length > 0)
+        {
+            setMenu(menuQueue.pop());
+        }
+        else
+        {
+            setMenu('menu-main');
+        }
     }
 });
 
