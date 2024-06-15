@@ -263,7 +263,7 @@ function updateCameraPosition()
 function updateBackgroundColor()
 {
     const timeDiff = Date.now() - backgroundTimeStamp;
-    const fadeDuration = tickInterval;
+    const fadeDuration = tickInterval * 3;
     const color = tmpColor.copy(damageColor).lerp(blackColor, timeDiff / fadeDuration);
 
     renderer.setClearColor(color, 1);
@@ -306,8 +306,8 @@ document.querySelector('#button-play').onclick = (event) =>
 
     clearTimeout(moveLoopTimeoutId);
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
+    initGame();
     playing = true;
-    game.init();
 
     boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
 }

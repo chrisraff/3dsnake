@@ -2,7 +2,6 @@
  * @author Chris Raff / http://www.ChrisRaff.com/
  */
 import * as THREE from 'three';
-import { _SRGBAFormat } from 'three';
 
 var tmpVector = new THREE.Vector3();
 
@@ -20,6 +19,7 @@ class SnakeGame extends EventTarget {
         this.foodBounds = [5, 5, 5];
         this.bounds = [13, 13, 13];
         this.lifeCount = 3;
+        this.damageCooldown = 0;
 
         this.isMakingInvalidMove = false;
     }
@@ -85,6 +85,11 @@ class SnakeGame extends EventTarget {
         if (this.lifeCount == 0)
             return;
 
+        if (this.damageCooldown > 0)
+        {
+            this.damageCooldown -= 1;
+        }
+
         // check if the snake is about to eat itself
         tmpVector.copy(this.nodes[0].position);
         tmpVector.add(this.nextDirection);
@@ -92,9 +97,12 @@ class SnakeGame extends EventTarget {
         this.isMakingInvalidMove = this.isMakingInvalidMove || this.outOfBounds(tmpVector);
         if (this.isMakingInvalidMove)
         {
-            this.lifeCount -= 1;
-
-            this.dispatchEvent(new Event('invalidMove'));
+            if (this.damageCooldown == 0)
+            {
+                this.lifeCount -= 1;
+                this.dispatchEvent(new Event('invalidMove'));
+                this.damageCooldown = 3;
+            }
 
             if (this.lifeCount == 0)
             {
