@@ -27,12 +27,17 @@ var game;
 var moveLoopTimeoutId;
 var tickInterval = 350;
 var playing = false;
+var backgroundTimeStamp = 0;
 
 var cubeMaterial;
 var foodMaterial;
 var boundsMaterial;
 
 var boundsMesh;
+
+// colors
+const damageColor = new THREE.Color(0.1, 0.0, 0.0);
+const blackColor = new THREE.Color(0.0, 0.0, 0.0);
 
 function init() {
 
@@ -250,6 +255,15 @@ function updateCameraPosition()
     camera.lookAt(0, 0, 0);
 }
 
+function updateBackgroundColor()
+{
+    const timeDiff = Date.now() - backgroundTimeStamp;
+    const fadeDuration = tickInterval;
+    const color = tmpColor.copy(damageColor).lerp(blackColor, timeDiff / fadeDuration);
+
+    renderer.setClearColor(color, 1);
+}
+
 function handleGameOver()
 {
     setMenu('menu-main');
@@ -260,6 +274,9 @@ function handleInvalidMove()
 {
     // update the relevant life icon
     document.querySelector(`.snake-life[snake-life-idx='${game.lifeCount}']`).innerText = '⬛';
+
+    // pulse the background color
+    backgroundTimeStamp = Date.now();
 }
 
 var animate = function ()
@@ -267,6 +284,8 @@ var animate = function ()
     let delta = Math.min(fpsClock.getDelta(), 0.1);
 
     updateCameraPosition();
+
+    updateBackgroundColor();
 
     requestAnimationFrame( animate );
 
