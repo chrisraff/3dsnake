@@ -132,6 +132,10 @@ function init() {
         }
     });
 
+    document.addEventListener('mouseleave', function(event) {
+        pauseGame();
+    });
+
     // Add a contextmenu event listener for the right mouse button (button 2)
     document.addEventListener('contextmenu', function(event) {
         event.preventDefault(); // Prevent the default context menu from appearing
@@ -143,6 +147,16 @@ function init() {
 
     //
     initGame();
+}
+
+function pauseGame()
+{
+    if (!playing)
+        return;
+
+    playing = false;
+    clearTimeout(moveLoopTimeoutId);
+    setMenu('menu-pause');
 }
 
 // set initial conditions for game
@@ -300,24 +314,41 @@ var animate = function ()
 init();
 
 // setup buttons
-document.querySelector('#button-play').onclick = (event) =>
-{
-    setMenu(null);
+document.querySelectorAll('.button-play').forEach(button => {
+    button.onclick = () => {
+        setMenu(null);
 
-    clearTimeout(moveLoopTimeoutId);
-    moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
-    initGame();
-    playing = true;
+        clearTimeout(moveLoopTimeoutId);
+        moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
+        initGame();
+        playing = true;
 
-    boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
-}
-document.querySelector('#button-options').onclick = () =>
-{
-    setMenu('menu-options');
-}
-document.querySelector('#button-options-back').onclick = () =>
-{
-    setMenu('menu-main');
-}
+        document.querySelector('#snake-realtime-length').innerHTML = game.nodes.length;
+        boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
+    }
+});
+
+document.querySelectorAll('.button-options').forEach(button => {
+    button.onclick = () =>
+    {
+        setMenu('menu-options');
+    }
+});
+
+document.querySelectorAll('.button-to-main').forEach(button => {
+    button.onclick = () =>
+    {
+        setMenu('menu-main');
+    }
+});
+
+document.querySelectorAll('.button-resume').forEach(button => {
+    button.onclick = () =>
+    {
+        setMenu(null);
+        playing = true;
+        moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
+    }
+});
 
 animate();
