@@ -16,6 +16,16 @@ var camera;
 
 var tmpColor;
 
+var tmpVector = new THREE.Vector3();
+const VECX  = new THREE.Vector3(1, 0, 0);
+const VECY  = new THREE.Vector3(0, 1, 0);
+const VECZ  = new THREE.Vector3(0, 0, 1);
+const VECXN = new THREE.Vector3(-1,0, 0);
+const VECYN = new THREE.Vector3(0,-1, 0);
+const VECZN = new THREE.Vector3(0, 0,-1);
+
+const XZVECS = [VECX, VECZ, VECXN, VECZN];
+
 const PI_2 = Math.PI / 2;
 
 // models
@@ -28,12 +38,16 @@ var moveLoopTimeoutId;
 var tickInterval = 350;
 var playing = false;
 var backgroundTimeStamp = 0;
+var orientationRadian = 0;
+var orientationTarget = 0;
 
 var cubeMaterial;
 var foodMaterial;
 var boundsMaterial;
 
 var boundsMesh;
+
+var rotateNode;
 
 // colors
 const damageColor = new THREE.Color(0.1, 0.0, 0.0);
@@ -54,6 +68,9 @@ function init() {
 
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+    rotateNode = new THREE.Object3D();
+    scene.add(rotateNode);
 
     // load grid texture
     const loader = new THREE.TextureLoader();
@@ -89,7 +106,7 @@ function init() {
     // set up lights
     let localLight = new THREE.PointLight( 0xffffff, 100 );
     camera.add( localLight );
-    scene.add( camera );
+    rotateNode.add( camera );
     let ambLight = new THREE.AmbientLight( 0x808080 );
     scene.add( ambLight );
 
@@ -128,12 +145,8 @@ function init() {
     document.addEventListener('mousedown', function(event) {
         if (event.button === 0) {
             // Left mouse button was clicked
-            move(0, 0, -1);
+            movePlanar(0);
         }
-    });
-
-    document.addEventListener('mouseleave', function(event) {
-        pauseGame();
     });
 
     // Add a contextmenu event listener for the right mouse button (button 2)
@@ -141,8 +154,12 @@ function init() {
         event.preventDefault(); // Prevent the default context menu from appearing
         if (event.button === 2) {
             // Right mouse button was clicked
-            move(0, 0, 1);
+            movePlanar(Math.PI);
         }
+    });
+
+    document.addEventListener('mouseleave', function(event) {
+        pauseGame();
     });
 
     //
@@ -173,6 +190,9 @@ function initGame()
     {
         scene.add(game.nodes[i]);
     }
+
+    orientationRadian = 0;
+    orientationTarget = 0;
 }
 
 function moveLoop()
@@ -189,29 +209,44 @@ function moveLoop()
 function onKeyPress(event)
 {
     let direction = [0, 0, 0];
-    switch (event.code)
-    {
+    switch (event.code) {
         case 'KeyD':
-            direction[0] = 1;
+            movePlanar(PI_2);
             break;
         case 'KeyA':
-            direction[0] = -1;
+            movePlanar(-PI_2);
             break;
         case 'KeyW':
-            direction[1] = 1;
+            move(0, 1, 0);
             break;
         case 'KeyS':
-            direction[1] = -1;
+            move(0, -1, 0);
             break;
         case 'KeyQ':
-            direction[2] = 1;
+            orientationTarget += PI_2;
             break;
         case 'KeyE':
-            direction[2] = -1;
+            orientationTarget -= PI_2;
             break;
     }
 
     move(...direction);
+}
+
+function movePlanar(theta)
+{
+    // find the vector that matches the camera's direction
+    tmpVector.set(Math.sin(orientationRadian + theta), 0, Math.cos(orientationRadian + theta));
+    let bestVec = undefined;
+    let bestDot = -1;
+    XZVECS.forEach((vec) => {
+        let num = tmpVector.dot(vec);
+        if (num > bestDot) {
+            bestDot = num;
+            bestVec = vec;
+        }
+    });
+    move(bestVec.x, bestVec.y, bestVec.z);
 }
 
 let mouseX, mouseY;
@@ -283,6 +318,21 @@ function updateBackgroundColor()
     renderer.setClearColor(color, 1);
 }
 
+function updateOrientationAngle(delta)
+{
+    // find if we need to rotate positive or negative
+    let diff = Math.sign(orientationTarget - orientationRadian);
+
+    // rotate the rotateNode towards the direction
+    let rotateAmount = diff * delta * 3;
+    if (Math.abs(orientationTarget - orientationRadian) < Math.abs(rotateAmount)) {
+        orientationRadian = orientationTarget;
+    } else {
+        orientationRadian += rotateAmount;
+    }
+    rotateNode.rotation.y = orientationRadian;
+}
+
 function handleGameOver()
 {
     setMenu('menu-main');
@@ -303,8 +353,8 @@ var animate = function ()
     let delta = Math.min(fpsClock.getDelta(), 0.1);
 
     updateCameraPosition();
-
     updateBackgroundColor();
+    updateOrientationAngle(delta);
 
     requestAnimationFrame( animate );
 
