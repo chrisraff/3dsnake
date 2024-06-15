@@ -97,13 +97,13 @@ function init() {
 
     cube_geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
     bounds_geometry = new THREE.BoxGeometry(1, 1, 1);
-    // const material = new MeshBasicMaterial();
-    // const cube = new THREE.Mesh(cube_geometry, cubeMaterial);
 
     boundsMesh = new THREE.Mesh(bounds_geometry, boundsMaterial);
     scene.add(boundsMesh);
 
-    // scene.add(cube);
+    // set initial camera position
+    camera.position.set(0, 0, 12);
+    camera.lookAt(0, 0, 0);
 
     game = new SnakeGame();
     game.context = {
@@ -114,6 +114,7 @@ function init() {
         'scene': scene
     }
 
+    // setup game event listeners
     game.addEventListener('gameOver', handleGameOver);
     game.addEventListener('invalidMove', handleInvalidMove);
 
@@ -238,6 +239,10 @@ function setMenu(menuId)
 
 function updateCameraPosition()
 {
+    // if either mouseX or mouseY is undefined, don't update the camera position
+    if (mouseX === undefined || mouseY === undefined)
+        return;
+
     // Get the total width and height of the screen
     const screenWidth = window.innerWidth;
     const screenHeight = window.innerHeight;
