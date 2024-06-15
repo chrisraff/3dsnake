@@ -6,9 +6,11 @@ import { _SRGBAFormat } from 'three';
 
 var tmpVector = new THREE.Vector3();
 
-class SnakeGame {
+class SnakeGame extends EventTarget {
     constructor()
     {
+        super();
+
         this.nodes = [];
         this.foodNodes = [];
         this.direction = new THREE.Vector3();
@@ -24,6 +26,8 @@ class SnakeGame {
 
     init = function()
     {
+        this.cleanUpScene();
+
         this.direction.set(1, 0, 0);
         this.nextDirection.copy(this.direction);
 
@@ -48,7 +52,20 @@ class SnakeGame {
 
         this.spawnFood();
 
-        this.context.document.querySelector('.snake-life').innerText = '🟩';
+        const snakeLives = this.context.document.querySelectorAll('.snake-life');
+        snakeLives.forEach(snakeLife => {
+            snakeLife.innerText = '🟩';
+        });
+    }
+
+    cleanUpScene = function()
+    {
+        this.nodes.forEach(element => {
+            element.removeFromParent();
+        });
+        this.foodNodes.forEach(element => {
+            element.removeFromParent();
+        });
     }
 
     spawnFood = function()
@@ -83,6 +100,13 @@ class SnakeGame {
             // update the relevant life icon
             this.lifeCount -= 1;
             this.context.document.querySelector(`.snake-life[snake-life-idx='${this.lifeCount}']`).innerText = '⬛';
+
+            this.dispatchEvent(new Event('invalidMove'));
+
+            if (this.lifeCount == 0)
+            {
+                this.dispatchEvent(new Event('gameOver'));
+            }
 
             // do not execute any further steps this tick
             return;

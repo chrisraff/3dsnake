@@ -110,6 +110,8 @@ function init() {
         'document': document
     }
 
+    game.addEventListener('gameOver', handleGameOver);
+
     // setup window resize handlers
     window.addEventListener( 'resize', onWindowResize, false );
     window.addEventListener( 'orientationchange', onWindowResize, false );
@@ -243,6 +245,12 @@ function updateCameraPosition()
     camera.lookAt(0, 0, 0);
 }
 
+function handleGameOver()
+{
+    setMenu('menu-main');
+    playing = false;
+}
+
 var animate = function ()
 {
     let delta = Math.min(fpsClock.getDelta(), 0.1);
@@ -260,12 +268,21 @@ init();
 document.querySelector('#button-play').onclick = (event) =>
 {
     setMenu(null);
+
+    clearTimeout(moveLoopTimeoutId);
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
     playing = true;
+    game.init();
+
+    boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
 }
 document.querySelector('#button-options').onclick = () =>
 {
-    setMenu(menu-options);
+    setMenu('menu-options');
+}
+document.querySelector('#button-options-back').onclick = () =>
+{
+    setMenu('menu-main');
 }
 
 animate();
