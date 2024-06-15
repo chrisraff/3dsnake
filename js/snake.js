@@ -51,11 +51,6 @@ class SnakeGame extends EventTarget {
         this.context.boundsMesh.scale.set(...this.bounds);
 
         this.spawnFood();
-
-        const snakeLives = this.context.document.querySelectorAll('.snake-life');
-        snakeLives.forEach(snakeLife => {
-            snakeLife.innerText = '🟩';
-        });
     }
 
     cleanUpScene = function()
@@ -97,9 +92,7 @@ class SnakeGame extends EventTarget {
         this.isMakingInvalidMove = this.isMakingInvalidMove || this.outOfBounds(tmpVector);
         if (this.isMakingInvalidMove)
         {
-            // update the relevant life icon
             this.lifeCount -= 1;
-            this.context.document.querySelector(`.snake-life[snake-life-idx='${this.lifeCount}']`).innerText = '⬛';
 
             this.dispatchEvent(new Event('invalidMove'));
 

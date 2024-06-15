@@ -106,11 +106,11 @@ function init() {
         'material': cubeMaterial,
         'foodMaterial': foodMaterial,
         'boundsMesh': boundsMesh,
-        'scene': scene,
-        'document': document
+        'scene': scene
     }
 
     game.addEventListener('gameOver', handleGameOver);
+    game.addEventListener('invalidMove', handleInvalidMove);
 
     // setup window resize handlers
     window.addEventListener( 'resize', onWindowResize, false );
@@ -136,13 +136,18 @@ function init() {
     });
 
     //
-    reset();
+    initGame();
 }
 
 // set initial conditions for game
-function reset()
+function initGame()
 {
     game.init();
+
+    const snakeLives = document.querySelectorAll('.snake-life');
+    snakeLives.forEach(snakeLife => {
+        snakeLife.innerText = '🟩';
+    });
 
     for (let i = 0; i < game.nodes.length; i++)
     {
@@ -249,6 +254,12 @@ function handleGameOver()
 {
     setMenu('menu-main');
     playing = false;
+}
+
+function handleInvalidMove()
+{
+    // update the relevant life icon
+    document.querySelector(`.snake-life[snake-life-idx='${game.lifeCount}']`).innerText = '⬛';
 }
 
 var animate = function ()
