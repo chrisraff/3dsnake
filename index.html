@@ -47,6 +47,7 @@
                 display: none;
                 flex-direction: column;
                 justify-content: center;
+                text-align: center;
             }
 
             .menu > * {
@@ -55,6 +56,10 @@
 
             .menu.menu-active {
                 display: flex;
+            }
+
+            .menu h2 {
+                font-weight: bold;
             }
 
             .menu button {
@@ -186,16 +191,22 @@
 
         <div id="menu-overlay">
             <div id="menu-main" class="menu menu-active">
+                <h2>3D Snake</h2>
+
                 <button id="button-play" class="button-main button-play">Play</button>
                 <button id="button-options" class="button-options">Options</button>
             </div>
 
             <div id="menu-options" class="menu">
-                <button id="button-options-back" class="button-to-main">Back</button>
+                <h2>Options</h2>
+
+                <button id="button-options-back" class="button-back">Back</button>
                 <button id="button-options" class="button-options">Options</button>
             </div>
 
             <div id="menu-pause" class="menu">
+                <h2>Paused</h2>
+
                 <button id="button-resume" class="button-main button-resume">Resume</button>
                 <button id="button-options" class="button-options">Options</button>
             </div>
