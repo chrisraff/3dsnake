@@ -3,6 +3,7 @@
  */
 import * as THREE from 'three';
 import { SnakeGame } from './snake.js';
+import * as keybinds from './keybinds.js';
 
 // webpage objects
 
@@ -52,109 +53,6 @@ var rotateNode;
 // colors
 const damageColor = new THREE.Color(0.1, 0.0, 0.0);
 const blackColor = new THREE.Color(0.0, 0.0, 0.0);
-
-// key bindings
-let keyBindings = {
-    'actionUp': {
-        'desc': 'Up',
-        'binds': [
-            {
-                'type': 'keydown',
-                'key': 'w'
-            }
-        ],
-        'action': function() {
-            move(0, 1, 0);
-        }
-    },
-    'actionDown': {
-        'desc': 'Down',
-        'binds': [
-            {
-                'type': 'keydown',
-                'key': 's'
-            }
-        ],
-        'action': function() {
-            move(0, -1, 0);
-        }
-    },
-    'actionLeft': {
-        'desc': 'Left',
-        'binds': [
-            {
-                'type': 'keydown',
-                'key': 'a'
-            }
-        ],
-        'action': function() {
-            movePlanar(-PI_2);
-        }
-    },
-    'actionRight': {
-        'desc': 'Right',
-        'binds': [
-            {
-                'type': 'keydown',
-                'key': 'd'
-            }
-        ],
-        'action': function() {
-            movePlanar(PI_2);
-        }
-    },
-    'actionIn': {
-        'desc': 'In',
-        'binds': [
-            {
-                'type': 'mousedown',
-                'button': 0
-            }
-        ],
-        'action': function() {
-            movePlanar(0);
-        }
-    },
-    'actionOut': {
-        'desc': 'Out',
-        'binds': [
-            {
-                'type': 'mousedown',
-                'button': 2
-            }
-        ],
-        'action': function() {
-            movePlanar(Math.PI);
-        }
-    },
-    'actionRotateLeft': {
-        'desc': 'Rotate Left',
-        'binds': [
-            {
-                'type': 'keydown',
-                'key': 'q'
-            }
-        ],
-        'action': function() {
-            orientationTarget += PI_2;
-        }
-    },
-    'actionRotateRight': {
-        'desc': 'Rotate Right',
-        'binds': [
-            {
-                'type': 'keydown',
-                'key': 'e'
-            }
-        ],
-        'action': function() {
-            orientationTarget -= PI_2;
-        }
-    }
-}
-
-let keydownBinds = {};
-let mousedownBinds = {};
 
 function init() {
 
@@ -247,8 +145,17 @@ function init() {
 
     document.addEventListener('mousedown', onMouseDown, false);
 
+    keybinds.keyBindings.actionUp.action = function() { move(0, 1, 0); };
+    keybinds.keyBindings.actionDown.action = function() { move(0, -1, 0); };
+    keybinds.keyBindings.actionLeft.action = function() { movePlanar(-PI_2); };
+    keybinds.keyBindings.actionRight.action = function() { movePlanar(PI_2); };
+    keybinds.keyBindings.actionIn.action = function() { movePlanar(0); };
+    keybinds.keyBindings.actionOut.action = function() { movePlanar(Math.PI); };
+    keybinds.keyBindings.actionRotateLeft.action = function() { orientationTarget += PI_2; };
+    keybinds.keyBindings.actionRotateRight.action = function() { orientationTarget -= PI_2; };
+
     // setup keybindings
-    setupKeyBindings(keyBindings);
+    keybinds.setupKeyBindings(keybinds.keyBindings);
 
     // Add a contextmenu event listener to prevent the default menu from appearing
     document.addEventListener('contextmenu', function(event) {
@@ -303,52 +210,21 @@ function moveLoop()
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
 
-// convert the key bindings to a button map for quick lookup
-function setupKeyBindings(keyBindings) {
-    keydownBinds = {};
-    mousedownBinds = {};
-
-    for (const action in keyBindings) {
-        const actionObj = keyBindings[action];
-
-        // Check if the action object has 'binds' and it's an array
-        if (Array.isArray(actionObj.binds)) {
-            actionObj.binds.forEach(bind => {
-                // Only process 'keydown' types
-                if (bind.type === 'keydown') {
-                    const key = bind.key;
-                    if (!keydownBinds[key]) {
-                        keydownBinds[key] = [];
-                    }
-                    keydownBinds[key].push(action);
-                }
-                if (bind.type === 'mousedown') {
-                    const button = bind.button;
-                    if (!mousedownBinds[button]) {
-                        mousedownBinds[button] = [];
-                    }
-                    mousedownBinds[button].push(action);
-                }
-            });
-        }
-    }
-}
-
 function onKeyDown(event)
 {
-    const actions = keydownBinds[event.key];
+    const actions = keybinds.keydownBinds[event.key];
     if (actions) {
         actions.forEach(action => {
-            keyBindings[action].action();
+            keybinds.keyBindings[action].action();
         });
     }
 }
 
 function onMouseDown(event) {
-    const actions = mousedownBinds[event.button];
+    const actions = keybinds.mousedownBinds[event.button];
     if (actions) {
         actions.forEach(action => {
-            keyBindings[action].action();
+            keybinds.keyBindings[action].action();
         });
     }
 };
