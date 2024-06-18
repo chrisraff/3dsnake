@@ -151,11 +151,10 @@ function init() {
     keybinds.keyBindings.actionRight.action = function() { movePlanar(PI_2); };
     keybinds.keyBindings.actionIn.action = function() { movePlanar(0); };
     keybinds.keyBindings.actionOut.action = function() { movePlanar(Math.PI); };
-    keybinds.keyBindings.actionRotateLeft.action = function() { orientationTarget += PI_2; };
-    keybinds.keyBindings.actionRotateRight.action = function() { orientationTarget -= PI_2; };
+    keybinds.keyBindings.actionRotateLeft.action = function() { orientationTarget -= PI_2; };
+    keybinds.keyBindings.actionRotateRight.action = function() { orientationTarget += PI_2; };
 
-    // setup keybindings
-    keybinds.setupKeyBindings(keybinds.keyBindings);
+    setupKeyBindings();
 
     // Add a contextmenu event listener to prevent the default menu from appearing
     document.addEventListener('contextmenu', function(event) {
@@ -208,6 +207,49 @@ function moveLoop()
     document.querySelector('#snake-realtime-length').innerHTML = game.nodes.length;
 
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
+}
+
+function setupKeyBindings()
+{
+    // map keybinds to onkeydown and onmousedown events
+    keybinds.setupKeyBindings(keybinds.keyBindings);
+
+    // add the keybinds to the controls menu
+    const controlRows = document.querySelectorAll('.control-row');
+    controlRows.forEach(controlRow => {
+        const bindingArea = controlRow.querySelector('.binding-area');
+        // delete all children of the binding area
+        while (bindingArea.firstChild) {
+            bindingArea.removeChild(bindingArea.firstChild);
+        }
+
+        // add a button for each keybind
+        const action = controlRow.getAttribute('target-action');
+        keybinds.keyBindings[action].binds.forEach(bind => {
+            const button = document.createElement('button');
+
+            let buttonText = '';
+            if (bind.type === 'keydown') {
+                buttonText = bind.key;
+
+                if (buttonText.length == 1) {
+                    // capitalize the key
+                    buttonText = buttonText.toUpperCase();
+                } else if (buttonText === ' ') {
+                    // change the space key to 'Space'
+                    buttonText = 'Space';
+                }
+            } else if (bind.type === 'mousedown') {
+                buttonText = 'Mouse ' + ['L', 'M', 'R'][bind.button];
+            }
+
+            button.innerText = buttonText;
+            // button.onclick = () => {
+            //     // record a new keybind
+            // };
+            bindingArea.appendChild(button);
+        });
+    });
 }
 
 function onKeyDown(event)

@@ -78,11 +78,70 @@
             button.button-main {
                 font-size: 24pt;
                 padding: 10px 20px;
-                width: 120%;
             }
 
             .menu button:hover {
                 background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            #menu-bindings {
+                width: 80%;
+                max-width: 800px;
+            }
+
+            #control-bindings {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .control-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1px 10px;
+            }
+            .control-row:nth-child(odd) {
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+
+            .binding-desc {
+                flex-shrink: 0;
+            }
+
+            .binding-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                flex-grow: 1;
+                max-width: 70%;
+                gap: 10px;
+            }
+
+            .binding-area {
+                display: flex;
+                overflow-x: auto;
+                white-space: nowrap;
+                padding: 5px;
+            }
+            /* Scrollbar styling */
+            .binding-area::-webkit-scrollbar {
+                height: 8px;
+            }
+            .binding-area::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.0);
+                border-radius: 5px;
+            }
+            .binding-area::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.5);
+                border-radius: 5px;
+            }
+            .binding-area::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.7);
+            }
+
+            .button-add-binding {
+                flex-shrink: 0;
             }
 
             .prevent-highlight
@@ -210,10 +269,65 @@
                 <h2>Edit Controls</h2>
 
                 <button class="button-back button-main">Back</button>
-                <!-- make a row for each control with a name on the left and then an area for bindings to be programatically added to, including a plus button to add more bindings -->
                 <div id="control-bindings">
-                    <div class="control-row" target-binding="actionUp">
+                    <div class="control-row" target-action="actionUp">
+                        <span class="binding-desc">Up</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
                     </div>
+                    <div class="control-row" target-action="actionDown">
+                        <span class="binding-desc">Down</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
+                    </div>
+                    <div class="control-row" target-action="actionLeft">
+                        <span class="binding-desc">Left</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
+                    </div>
+                    <div class="control-row" target-action="actionRight">
+                        <span class="binding-desc">Right</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
+                    </div>
+                    <div class="control-row" target-action="actionIn">
+                        <span class="binding-desc">In</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
+                    </div>
+                    <div class="control-row" target-action="actionOut">
+                        <span class="binding-desc">Out</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
+                    </div>
+                    <div class="control-row" target-action="actionRotateLeft">
+                        <span class="binding-desc">Rotate Left</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
+                    </div>
+                    <div class="control-row" target-action="actionRotateRight">
+                        <span class="binding-desc">Rotate Right</span>
+                        <div class="binding-wrapper">
+                            <div class="binding-area"></div>
+                            <button class="button-add-binding">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="menu-pause" class="menu">
                 <h2>Paused</h2>
 
