@@ -53,6 +53,109 @@ var rotateNode;
 const damageColor = new THREE.Color(0.1, 0.0, 0.0);
 const blackColor = new THREE.Color(0.0, 0.0, 0.0);
 
+// key bindings
+let keyBindings = {
+    'actionUp': {
+        'desc': 'Up',
+        'binds': [
+            {
+                'type': 'keydown',
+                'key': 'w'
+            }
+        ],
+        'action': function() {
+            move(0, 1, 0);
+        }
+    },
+    'actionDown': {
+        'desc': 'Down',
+        'binds': [
+            {
+                'type': 'keydown',
+                'key': 's'
+            }
+        ],
+        'action': function() {
+            move(0, -1, 0);
+        }
+    },
+    'actionLeft': {
+        'desc': 'Left',
+        'binds': [
+            {
+                'type': 'keydown',
+                'key': 'a'
+            }
+        ],
+        'action': function() {
+            movePlanar(-PI_2);
+        }
+    },
+    'actionRight': {
+        'desc': 'Right',
+        'binds': [
+            {
+                'type': 'keydown',
+                'key': 'd'
+            }
+        ],
+        'action': function() {
+            movePlanar(PI_2);
+        }
+    },
+    'actionIn': {
+        'desc': 'In',
+        'binds': [
+            {
+                'type': 'mousedown',
+                'button': 0
+            }
+        ],
+        'action': function() {
+            movePlanar(0);
+        }
+    },
+    'actionOut': {
+        'desc': 'Out',
+        'binds': [
+            {
+                'type': 'mousedown',
+                'button': 2
+            }
+        ],
+        'action': function() {
+            movePlanar(Math.PI);
+        }
+    },
+    'actionRotateLeft': {
+        'desc': 'Rotate Left',
+        'binds': [
+            {
+                'type': 'keydown',
+                'key': 'q'
+            }
+        ],
+        'action': function() {
+            orientationTarget += PI_2;
+        }
+    },
+    'actionRotateRight': {
+        'desc': 'Rotate Right',
+        'binds': [
+            {
+                'type': 'keydown',
+                'key': 'e'
+            }
+        ],
+        'action': function() {
+            orientationTarget -= PI_2;
+        }
+    }
+}
+
+let keydownBinds = {};
+let mousedownBinds = {};
+
 function init() {
 
     // loadSavedVariables();
@@ -139,23 +242,17 @@ function init() {
     window.addEventListener( 'resize', onWindowResize, false );
     window.addEventListener( 'orientationchange', onWindowResize, false );
 
-    window.addEventListener( 'keypress', onKeyPress, false);
+    window.addEventListener( 'keydown', onKeyDown, false);
     window.addEventListener( 'mousemove', onMouseMove, false );
 
-    document.addEventListener('mousedown', function(event) {
-        if (event.button === 0) {
-            // Left mouse button was clicked
-            movePlanar(0);
-        }
-    });
+    document.addEventListener('mousedown', onMouseDown, false);
 
-    // Add a contextmenu event listener for the right mouse button (button 2)
+    // setup keybindings
+    setupKeyBindings(keyBindings);
+
+    // Add a contextmenu event listener to prevent the default menu from appearing
     document.addEventListener('contextmenu', function(event) {
-        event.preventDefault(); // Prevent the default context menu from appearing
-        if (event.button === 2) {
-            // Right mouse button was clicked
-            movePlanar(Math.PI);
-        }
+        event.preventDefault();
     });
 
     document.addEventListener('mouseleave', function(event) {
@@ -206,32 +303,55 @@ function moveLoop()
     moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
 }
 
-function onKeyPress(event)
-{
-    let direction = [0, 0, 0];
-    switch (event.code) {
-        case 'KeyD':
-            movePlanar(PI_2);
-            break;
-        case 'KeyA':
-            movePlanar(-PI_2);
-            break;
-        case 'KeyW':
-            move(0, 1, 0);
-            break;
-        case 'KeyS':
-            move(0, -1, 0);
-            break;
-        case 'KeyQ':
-            orientationTarget += PI_2;
-            break;
-        case 'KeyE':
-            orientationTarget -= PI_2;
-            break;
-    }
+// convert the key bindings to a button map for quick lookup
+function setupKeyBindings(keyBindings) {
+    keydownBinds = {};
+    mousedownBinds = {};
 
-    move(...direction);
+    for (const action in keyBindings) {
+        const actionObj = keyBindings[action];
+
+        // Check if the action object has 'binds' and it's an array
+        if (Array.isArray(actionObj.binds)) {
+            actionObj.binds.forEach(bind => {
+                // Only process 'keydown' types
+                if (bind.type === 'keydown') {
+                    const key = bind.key;
+                    if (!keydownBinds[key]) {
+                        keydownBinds[key] = [];
+                    }
+                    keydownBinds[key].push(action);
+                }
+                if (bind.type === 'mousedown') {
+                    const button = bind.button;
+                    if (!mousedownBinds[button]) {
+                        mousedownBinds[button] = [];
+                    }
+                    mousedownBinds[button].push(action);
+                }
+            });
+        }
+    }
 }
+
+function onKeyDown(event)
+{
+    const actions = keydownBinds[event.key];
+    if (actions) {
+        actions.forEach(action => {
+            keyBindings[action].action();
+        });
+    }
+}
+
+function onMouseDown(event) {
+    const actions = mousedownBinds[event.button];
+    if (actions) {
+        actions.forEach(action => {
+            keyBindings[action].action();
+        });
+    }
+};
 
 function movePlanar(theta)
 {
