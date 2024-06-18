@@ -376,13 +376,13 @@ document.querySelectorAll('.button-play').forEach(button => {
     }
 });
 
-document.querySelectorAll('.button-options').forEach(button => {
+// query all elements with any value for attribute 'target-menu' and have it set the menu to that value
+document.querySelectorAll('[target-menu]').forEach(button => {
     button.onclick = () =>
     {
-        // push the current menu onto the queue
         const currentMenuId = document.querySelector('.menu.menu-active').id;
         menuQueue.push(currentMenuId);
-        setMenu('menu-options');
+        setMenu(button.getAttribute('target-menu'));
     }
 });
 

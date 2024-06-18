@@ -196,21 +196,29 @@
                 <br/>
 
                 <button class="button-main button-play">Play</button>
-                <button class="button-options">Options</button>
+                <button target-menu="menu-options">Options</button>
             </div>
 
             <div id="menu-options" class="menu">
                 <h2>Options</h2>
 
-                <button class="button-back">Back</button>
-                <button class="button-options">Options</button>
+                <button class="button-back button-main">Back</button>
+                <button target-menu="menu-bindings">Edit Controls</button>
             </div>
 
+            <div id="menu-bindings" class="menu">
+                <h2>Edit Controls</h2>
+
+                <button class="button-back button-main">Back</button>
+                <!-- make a row for each control with a name on the left and then an area for bindings to be programatically added to, including a plus button to add more bindings -->
+                <div id="control-bindings">
+                    <div class="control-row" target-binding="actionUp">
+                    </div>
             <div id="menu-pause" class="menu">
                 <h2>Paused</h2>
 
                 <button class="button-main button-resume">Resume</button>
-                <button class="button-options">Options</button>
+                <button target-menu="menu-options">Options</button>
             </div>
         </div>
     </body>
