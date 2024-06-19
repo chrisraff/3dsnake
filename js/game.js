@@ -275,7 +275,6 @@ function handleDeleteBinding(button)
     keybinds.setupKeyBindings(keybinds.keyBindings);
 }
 
-
 const keyDisplayMap = {
     ' ': 'Space',
     'ArrowUp': '↑',
@@ -320,10 +319,21 @@ function recordBinding(binding)
 {
     const button = document.querySelector('.button-binding-recording');
 
+    // check if there are any duplicate bindings
+    const action = button.parentElement.parentElement.parentElement.getAttribute('target-action');
+    const bindings = keybinds.keyBindings[action].binds;
+    for (let i = 0; i < bindings.length; i++)
+    {
+        if (JSON.stringify(bindings[i]) === JSON.stringify(binding))
+        {
+            // if the binding is a duplicate, don't add it
+            return;
+        }
+    }
+
     setupBindingButton(button, binding);
     button.classList.remove('button-binding-recording');
 
-    const action = button.parentElement.parentElement.parentElement.getAttribute('target-action');
     keybinds.keyBindings[action].binds.push(binding);
 
     isRecordingBinding = false;
