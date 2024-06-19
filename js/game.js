@@ -244,6 +244,13 @@ function setupKeyBindings()
 
             isRecordingBinding = true;
 
+            // disable all buttons
+            const addButtons = document.querySelectorAll('button');
+            addButtons.forEach(addButton => {
+                addButton.disabled = true;
+                addButton.classList.add('binding-disabled');
+            });
+
             // add a button to the binding area
             const button = document.createElement('button');
             button.classList.add('button-binding-recording');
@@ -303,6 +310,12 @@ function recordBinding(binding)
 
     isRecordingBinding = false;
 
+    // re-enable all buttons
+    const addButtons = document.querySelectorAll('button.binding-disabled');
+    addButtons.forEach(addButton => {
+        addButton.disabled = false;
+    });
+
     keybinds.setupKeyBindings(keybinds.keyBindings);
 }
 
@@ -322,7 +335,8 @@ function onKeyDown(event)
 }
 
 function onMouseDown(event) {
-    if (isRecordingBinding && !(event.target && event.target.tagName === 'BUTTON' && !event.target.classList.contains('button-add-binding')))
+    // if recording and the target is not a button, record the binding
+    if (isRecordingBinding && !(event.target && event.target.tagName === 'BUTTON' && !event.target.disabled))
     {
         recordBinding({type: 'mousedown', button: event.button});
     }

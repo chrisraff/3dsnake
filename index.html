@@ -74,6 +74,13 @@
                 outline: none;
                 align-self: center;
             }
+            .menu button:disabled {
+                background-color: rgba(128, 128, 128, 0.2);
+                color: rgba(200, 200, 200, 0.75);
+                border-color: #888888;
+                cursor: auto;
+                pointer-events: none;
+            }
 
             button.button-main {
                 font-size: 24pt;
@@ -123,6 +130,7 @@
                 overflow-x: auto;
                 white-space: nowrap;
                 padding: 5px;
+                gap: 10px;
             }
             /* Scrollbar styling */
             .binding-area::-webkit-scrollbar {
@@ -269,6 +277,9 @@
                 <h2>Edit Controls</h2>
 
                 <button class="button-back button-main">Back</button>
+
+                <p>Click on a control to delete it's binding. Click plus to add a new one.</p>
+
                 <div id="control-bindings">
                     <div class="control-row" target-action="actionUp">
                         <span class="binding-desc">Up</span>
