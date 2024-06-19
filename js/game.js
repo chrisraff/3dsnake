@@ -275,21 +275,39 @@ function handleDeleteBinding(button)
     keybinds.setupKeyBindings(keybinds.keyBindings);
 }
 
+
+const keyDisplayMap = {
+    ' ': 'Space',
+    'ArrowUp': '↑',
+    'ArrowDown': '↓',
+    'ArrowLeft': '←',
+    'ArrowRight': '→'
+};
+
 function setupBindingButton(button, binding)
 {
     if (binding.type === 'keydown')
     {
-        if (binding.key.length == 1) {
+        if (keyDisplayMap[binding.key])
+            button.innerText = keyDisplayMap[binding.key];
+        else if (binding.key.length == 1) {
             // capitalize the key
             button.innerText = binding.key.toUpperCase();
-        } else if (binding.key === ' ') {
-            // change the space key to 'Space'
-            button.innerText = 'Space';
+        }
+        else
+        {
+            button.innerText = binding.key;
         }
     }
     else if (binding.type === 'mousedown')
     {
-        button.innerText = 'Mouse ' + ['L', 'M', 'R'][binding.button];
+        if (binding.button < 3)
+            button.innerText = 'Mouse ' + ['L', 'M', 'R'][binding.button];
+        else
+            button.innerText = 'Mouse ' + binding.button;
+    }
+    else {
+        button.innerText = `Unknown: ${binding.type}`;
     }
 
     button.setAttribute('binding-data', JSON.stringify(binding));
