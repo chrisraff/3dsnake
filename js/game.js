@@ -41,6 +41,7 @@ var playing = false;
 var backgroundTimeStamp = 0;
 var orientationRadian = 0;
 var orientationTarget = 0;
+var isRecordingBinding = false;
 
 var cubeMaterial;
 var foodMaterial;
@@ -149,10 +150,10 @@ function init() {
     keybinds.keyBindings.actionDown.action = function() { move(0, -1, 0); };
     keybinds.keyBindings.actionLeft.action = function() { movePlanar(-PI_2); };
     keybinds.keyBindings.actionRight.action = function() { movePlanar(PI_2); };
-    keybinds.keyBindings.actionIn.action = function() { movePlanar(0); };
-    keybinds.keyBindings.actionOut.action = function() { movePlanar(Math.PI); };
-    keybinds.keyBindings.actionRotateLeft.action = function() { orientationTarget -= PI_2; };
-    keybinds.keyBindings.actionRotateRight.action = function() { orientationTarget += PI_2; };
+    keybinds.keyBindings.actionIn.action = function() { movePlanar(Math.PI); };
+    keybinds.keyBindings.actionOut.action = function() { movePlanar(0); };
+    keybinds.keyBindings.actionRotateLeft.action = function() { if (playing) orientationTarget -= PI_2; };
+    keybinds.keyBindings.actionRotateRight.action = function() { if (playing) orientationTarget += PI_2; };
 
     setupKeyBindings();
 
@@ -228,32 +229,90 @@ function setupKeyBindings()
         keybinds.keyBindings[action].binds.forEach(bind => {
             const button = document.createElement('button');
 
-            let buttonText = '';
-            if (bind.type === 'keydown') {
-                buttonText = bind.key;
-
-                if (buttonText.length == 1) {
-                    // capitalize the key
-                    buttonText = buttonText.toUpperCase();
-                } else if (buttonText === ' ') {
-                    // change the space key to 'Space'
-                    buttonText = 'Space';
-                }
-            } else if (bind.type === 'mousedown') {
-                buttonText = 'Mouse ' + ['L', 'M', 'R'][bind.button];
-            }
-
-            button.innerText = buttonText;
-            // button.onclick = () => {
-            //     // record a new keybind
-            // };
+            setupBindingButton(button, bind);
+            button.onclick = () => {
+                handleDeleteBinding(button);
+            };
             bindingArea.appendChild(button);
         });
+
+        // setup callback for adding a new keybind
+        const addButton = controlRow.querySelector('.button-add-binding');
+        addButton.onclick = () => {
+            if (isRecordingBinding)
+                return;
+
+            isRecordingBinding = true;
+
+            // add a button to the binding area
+            const button = document.createElement('button');
+            button.classList.add('button-binding-recording');
+            button.innerText = 'Waiting...';
+            bindingArea.appendChild(button);
+        };
     });
+}
+
+function handleDeleteBinding(button)
+{
+    // if we are recording a binding, don't delete the binding
+    if (isRecordingBinding)
+        return;
+
+    const action = button.parentElement.parentElement.parentElement.getAttribute('target-action');
+    const binding = JSON.parse(button.getAttribute('binding-data'));
+
+    keybinds.deleteBinding(action, binding.type, binding.key, binding.button);
+    button.parentElement.removeChild(button);
+
+    keybinds.setupKeyBindings(keybinds.keyBindings);
+}
+
+function setupBindingButton(button, binding)
+{
+    if (binding.type === 'keydown')
+    {
+        if (binding.key.length == 1) {
+            // capitalize the key
+            button.innerText = binding.key.toUpperCase();
+        } else if (binding.key === ' ') {
+            // change the space key to 'Space'
+            button.innerText = 'Space';
+        }
+    }
+    else if (binding.type === 'mousedown')
+    {
+        button.innerText = 'Mouse ' + ['L', 'M', 'R'][binding.button];
+    }
+
+    button.setAttribute('binding-data', JSON.stringify(binding));
+    button.onclick = () => {
+        handleDeleteBinding(button);
+    };
+}
+
+function recordBinding(binding)
+{
+    const button = document.querySelector('.button-binding-recording');
+
+    setupBindingButton(button, binding);
+    button.classList.remove('button-binding-recording');
+
+    const action = button.parentElement.parentElement.parentElement.getAttribute('target-action');
+    keybinds.keyBindings[action].binds.push(binding);
+
+    isRecordingBinding = false;
+
+    keybinds.setupKeyBindings(keybinds.keyBindings);
 }
 
 function onKeyDown(event)
 {
+    if (isRecordingBinding)
+    {
+        recordBinding({type: 'keydown', key: event.key});
+    }
+
     const actions = keybinds.keydownBinds[event.key];
     if (actions) {
         actions.forEach(action => {
@@ -263,6 +322,11 @@ function onKeyDown(event)
 }
 
 function onMouseDown(event) {
+    if (isRecordingBinding && !(event.target && event.target.tagName === 'BUTTON' && !event.target.classList.contains('button-add-binding')))
+    {
+        recordBinding({type: 'mousedown', button: event.button});
+    }
+
     const actions = keybinds.mousedownBinds[event.button];
     if (actions) {
         actions.forEach(action => {

@@ -91,6 +91,9 @@ let keydownBinds = {};
 let mousedownBinds = {};
 
 function setupKeyBindings(keyBindings) {
+    keydownBinds = {};
+    mousedownBinds = {};
+
     for (let action in keyBindings) {
         let binds = keyBindings[action].binds;
         for (let i = 0; i < binds.length; i++) {
@@ -110,4 +113,20 @@ function setupKeyBindings(keyBindings) {
     }
 }
 
-export { keyBindings, keydownBinds, mousedownBinds, setupKeyBindings };
+function deleteBinding(action, type, key, button) {
+    let binds = keyBindings[action].binds;
+    for (let i = 0; i < binds.length; i++) {
+        let bind = binds[i];
+        if (bind.type === type) {
+            if (type === 'keydown' && bind.key === key) {
+                binds.splice(i, 1);
+                break;
+            } else if (type === 'mousedown' && bind.button === button) {
+                binds.splice(i, 1);
+                break;
+            }
+        }
+    }
+}
+
+export { keyBindings, keydownBinds, mousedownBinds, setupKeyBindings, deleteBinding };
