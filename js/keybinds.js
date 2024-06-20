@@ -2,9 +2,11 @@
  * @author Chris Raff / http://www.ChrisRaff.com/
  */
 
+import { storageGetItem } from "./storage.js";
+
 const nullAction = function() {};
 
-let keyBindings = {
+let defaultKeybindings = {
     'actionUp': {
         'desc': 'Up',
         'binds': [
@@ -87,6 +89,8 @@ let keyBindings = {
     }
 }
 
+let keyBindings = JSON.parse(JSON.stringify(defaultKeybindings));
+
 let keydownBinds = {};
 let mousedownBinds = {};
 
@@ -129,4 +133,20 @@ function deleteBinding(action, type, key, button) {
     }
 }
 
-export { keyBindings, keydownBinds, mousedownBinds, setupKeyBindings, deleteBinding };
+function loadKeybinds() {
+    let keybinds = JSON.parse(storageGetItem('keybinds', null));
+    if (keybinds) {
+        keyBindings = keybinds;
+
+        for (let action in keyBindings) {
+            keyBindings[action].action = nullAction;
+        }
+    }
+}
+
+function stringifyKeybinds() {
+    // callbacks are ignored
+    return JSON.stringify(keyBindings);
+}
+
+export { keyBindings, defaultKeybindings, keydownBinds, mousedownBinds, setupKeyBindings, deleteBinding, loadKeybinds, stringifyKeybinds };

@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import { SnakeGame } from './snake.js';
 import * as keybinds from './keybinds.js';
+import { storageSetItem } from './storage.js';
 
 // webpage objects
 
@@ -56,8 +57,6 @@ const damageColor = new THREE.Color(0.1, 0.0, 0.0);
 const blackColor = new THREE.Color(0.0, 0.0, 0.0);
 
 function init() {
-
-    // loadSavedVariables();
 
     renderer = new THREE.WebGLRenderer( { antialias: true, powerPreference: "high-performance" } );
     renderer.setPixelRatio( Math.min(window.devicePixelRatio, 2) );
@@ -145,6 +144,8 @@ function init() {
     window.addEventListener( 'mousemove', onMouseMove, false );
 
     document.addEventListener('mousedown', onMouseDown, false);
+
+    keybinds.loadKeybinds();
 
     keybinds.keyBindings.actionUp.action = function() { move(0, 1, 0); };
     keybinds.keyBindings.actionDown.action = function() { move(0, -1, 0); };
@@ -273,6 +274,8 @@ function handleDeleteBinding(button)
     button.parentElement.removeChild(button);
 
     keybinds.setupKeyBindings(keybinds.keyBindings);
+
+    storageSetItem('keybinds', keybinds.stringifyKeybinds());
 }
 
 const keyDisplayMap = {
@@ -344,6 +347,7 @@ function recordBinding(binding)
         addButton.disabled = false;
     });
 
+    storageSetItem('keybinds', keybinds.stringifyKeybinds());
     keybinds.setupKeyBindings(keybinds.keyBindings);
 }
 
