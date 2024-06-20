@@ -158,6 +158,13 @@
                 -ms-user-select: none;
                 user-select: none;
             }
+
+            body.formfactor-touchfirst .formfactor-desktop {
+                display: none;
+            }
+            body:not(.formfactor-touchfirst) .formfactor-touchfirst {
+                display: none;
+            }
         </style>
 
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -264,6 +271,7 @@
 
                 <button class="button-main button-play">Play</button>
                 <button target-menu="menu-options">Options</button>
+                <button class="button-fullscreen formfactor-touchfirst">Fullscreen</button>
             </div>
 
             <div id="menu-options" class="menu">

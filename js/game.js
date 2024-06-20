@@ -58,6 +58,11 @@ const blackColor = new THREE.Color(0.0, 0.0, 0.0);
 
 function init() {
 
+    // detect if mobile / tablet
+    if (window.matchMedia('(hover: none)').matches) {
+        document.body.classList.add('formfactor-touchfirst');
+    }
+
     renderer = new THREE.WebGLRenderer( { antialias: true, powerPreference: "high-performance" } );
     renderer.setPixelRatio( Math.min(window.devicePixelRatio, 2) );
     renderer.setSize( window.innerWidth, window.innerHeight );
@@ -560,6 +565,27 @@ document.querySelectorAll('.button-resume').forEach(button => {
         playing = true;
         moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
     }
+});
+
+document.querySelectorAll('.button-fullscreen').forEach(button => {
+    button.onclick = () =>
+    {
+        if (document.fullscreenElement)
+        {
+            document.exitFullscreen();
+        }
+        else
+        {
+            document.documentElement.requestFullscreen();
+        }
+    }
+});
+
+document.addEventListener('fullscreenchange', (event) => {
+    const fullscreenButtons = document.querySelectorAll('.button-fullscreen');
+    fullscreenButtons.forEach(button => {
+        button.innerText = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
+    });
 });
 
 animate();
