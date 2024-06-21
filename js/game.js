@@ -455,10 +455,11 @@ function updateCameraPosition()
     let mouseFracY = (mouseY - (screenHeight * 0.5)) / convFactor;
 
     // smooth the edges
-    mouseFracX = Math.tanh(3 * mouseFracX) / 2;
-    mouseFracY = Math.tanh(3 * mouseFracY) / 2;
+    mouseFracX = Math.tanh(3 * mouseFracX);
+    mouseFracY = Math.tanh(3 * mouseFracY);
 
-    camera.position.set(-mouseFracX * 8, mouseFracY * 8, 12);
+    const maxbounds = 6;
+    camera.position.set(-mouseFracX * maxbounds, mouseFracY * maxbounds, 12);
     camera.lookAt(0, 0, 0);
 }
 
