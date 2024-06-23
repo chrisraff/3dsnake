@@ -41,6 +41,10 @@
                 height: 100%;
                 display: flex;
                 justify-content: center;
+                pointer-events: none;
+            }
+            #menu-overlay > * {
+                pointer-events: auto;
             }
 
             .menu {
@@ -154,6 +158,53 @@
                 align-self: center;
             }
 
+            .dpad {
+                position: fixed;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr); /* Creates a 3-column grid */
+                grid-template-rows: repeat(3, 1fr); /* Creates a 3-row grid */
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 40vh;
+                height: 40vh;
+                justify-content: space-around;
+                align-content: space-around;
+            }
+
+            .dpad .dpad-up { grid-area: 1 / 2 / 2 / 3; } /* Top center */
+            .dpad .dpad-right { grid-area: 2 / 3 / 3 / 4; } /* Middle right */
+            .dpad .dpad-down { grid-area: 3 / 2 / 4 / 3; } /* Bottom center */
+            .dpad .dpad-left { grid-area: 2 / 1 / 3 / 2; } /* Middle left */
+
+            .inoutpad {
+                position: fixed;
+                display: grid;
+                grid-template-columns: 1fr; /* Creates a 1-column grid */
+                grid-template-rows: repeat(2, 1fr); /* Creates a 2-row grid */
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 15vh;
+                height: 30vh;
+                justify-content: space-around;
+                align-content: space-around;
+            }
+
+            .touch-controls .button {
+                display: flex;
+                justify-content: center;
+                border: 2px solid rgba(255, 255, 255, 0.5);
+                border-radius: 20%;
+                align-items: center;
+                font-size: 4vh;
+                cursor: pointer;
+            }
+
+            .hide {
+                display: none;
+            }
+
             .prevent-highlight
             {
                 -webkit-user-select: none;
@@ -263,6 +314,18 @@
                 <div class="snake-life" snake-life-idx="1">🟩</div>
                 <div class="snake-life" snake-life-idx="2">🟩</div>
             </div>
+        </div>
+
+        <div class="dpad formfactor-touchfirst touch-controls hide">
+            <div target-action="actionUp" class="button dpad-up">↑</div>
+            <div target-action="actionRight" class="button dpad-right">→</div>
+            <div target-action="actionDown" class="button dpad-down">↓</div>
+            <div target-action="actionLeft" class="button dpad-left">←</div>
+        </div>
+
+        <div class="inoutpad formfactor-touchfirst touch-controls hide">
+            <div target-action="actionIn" class="button dpad-in">↑</div>
+            <div target-action="actionOut" class="button dpad-out">↓</div>
         </div>
 
         <div id="menu-overlay">

@@ -42,6 +42,8 @@ var playing = false;
 var backgroundTimeStamp = 0;
 var orientationRadian = 0;
 var orientationTarget = 0;
+
+var isMobileControls = false;
 var isRecordingBinding = false;
 
 var cubeMaterial;
@@ -57,11 +59,6 @@ const damageColor = new THREE.Color(0.1, 0.0, 0.0);
 const blackColor = new THREE.Color(0.0, 0.0, 0.0);
 
 function init() {
-
-    // detect if mobile / tablet
-    if (window.matchMedia('(hover: none)').matches) {
-        document.body.classList.add('formfactor-touchfirst');
-    }
 
     renderer = new THREE.WebGLRenderer( { antialias: true, powerPreference: "high-performance" } );
     renderer.setPixelRatio( Math.min(window.devicePixelRatio, 2) );
@@ -145,10 +142,10 @@ function init() {
     window.addEventListener( 'resize', onWindowResize, false );
     window.addEventListener( 'orientationchange', onWindowResize, false );
 
-    window.addEventListener( 'keydown', onKeyDown, false);
-    window.addEventListener( 'mousemove', onMouseMove, false );
+    // detect if mobile / tablet
+    setMobileControls(window.matchMedia('(hover: none)').matches);
 
-    document.addEventListener('mousedown', onMouseDown, false);
+    window.addEventListener( 'keydown', onKeyDown, false);
 
     keybinds.loadKeybinds();
 
@@ -163,6 +160,17 @@ function init() {
 
     setupKeyBindings();
 
+    // setup touch controls
+    document.querySelectorAll('.touch-controls .button').forEach(button => {
+        const action = button.getAttribute('target-action');
+        const actionCallback = keybinds.keyBindings[action].action;
+
+        button.addEventListener('touchstart', (event) => {
+            event.preventDefault();
+            actionCallback();
+        });
+    });
+
     // Add a contextmenu event listener to prevent the default menu from appearing
     document.addEventListener('contextmenu', function(event) {
         event.preventDefault();
@@ -176,14 +184,61 @@ function init() {
     initGame();
 }
 
+function setMobileControls(isMobile)
+{
+    isMobileControls = isMobile;
+    if (isMobile)
+    {
+        // remove event listeners
+        document.removeEventListener('mousedown', onMouseDown, false);
+        document.removeEventListener('mousemove', onMouseMove, false);
+
+        // add touch controls
+        document.body.classList.add('formfactor-touchfirst');
+    }
+    else
+    {
+        // add event listeners
+        document.addEventListener('mousedown', onMouseDown, false);
+        document.addEventListener('mousemove', onMouseMove, false);
+
+        // remove touch controls
+        document.body.classList.remove('formfactor-touchfirst');
+    }
+
+}
+
 function pauseGame()
 {
     if (!playing)
         return;
 
-    playing = false;
-    clearTimeout(moveLoopTimeoutId);
+    setPlaying(false);
     setMenu('menu-pause');
+}
+
+function setPlaying(isPlaying)
+{
+    playing = isPlaying;
+    if (playing)
+    {
+        setMenu(null);
+        // unhide the mobile controls
+        document.querySelectorAll('.touch-controls').forEach(touchControls => {
+            touchControls.classList.remove('hide');
+        });
+
+        moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
+    }
+    else
+    {
+        clearTimeout(moveLoopTimeoutId);
+
+        // hide the mobile controls
+        document.querySelectorAll('.touch-controls').forEach(touchControls => {
+            touchControls.classList.add('hide');
+        });
+    }
 }
 
 // set initial conditions for game
@@ -489,8 +544,8 @@ function updateOrientationAngle(delta)
 
 function handleGameOver()
 {
+    setPlaying(false);
     setMenu('menu-main');
-    playing = false;
 }
 
 function handleInvalidMove()
@@ -515,8 +570,6 @@ var animate = function ()
     renderer.render( scene, camera );
 };
 
-init();
-
 // setup buttons
 let menuQueue = [];
 
@@ -525,9 +578,8 @@ document.querySelectorAll('.button-play').forEach(button => {
         setMenu(null);
 
         clearTimeout(moveLoopTimeoutId);
-        moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
         initGame();
-        playing = true;
+        setPlaying(true);
 
         document.querySelector('#snake-realtime-length').innerHTML = game.nodes.length;
         boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
@@ -562,9 +614,7 @@ document.querySelectorAll('.button-back').forEach(button => {
 document.querySelectorAll('.button-resume').forEach(button => {
     button.onclick = () =>
     {
-        setMenu(null);
-        playing = true;
-        moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
+        setPlaying(true);
     }
 });
 
@@ -588,5 +638,9 @@ document.addEventListener('fullscreenchange', (event) => {
         button.innerText = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
     });
 });
+
+// ====
+
+init();
 
 animate();
