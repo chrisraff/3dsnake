@@ -163,11 +163,11 @@
                 display: grid;
                 grid-template-columns: repeat(3, 1fr); /* Creates a 3-column grid */
                 grid-template-rows: repeat(3, 1fr); /* Creates a 3-row grid */
-                left: 10px;
+                left: 5%;
                 top: 50%;
                 transform: translateY(-50%);
-                width: 40vh;
-                height: 40vh;
+                width: min(60vh, 30vw);
+                height: min(60vh, 30vw);
                 justify-content: space-around;
                 align-content: space-around;
             }
@@ -182,11 +182,24 @@
                 display: grid;
                 grid-template-columns: 1fr; /* Creates a 1-column grid */
                 grid-template-rows: repeat(2, 1fr); /* Creates a 2-row grid */
-                right: 10px;
+                right: 5%;
                 top: 50%;
                 transform: translateY(-50%);
-                width: 15vh;
-                height: 30vh;
+                width: min(25vh, 15vw);
+                height: min(50vh, 30vw);
+                justify-content: space-around;
+                align-content: space-around;
+            }
+
+            .rotatepad {
+                position: fixed;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr); /* Creates a 2-column grid */
+                grid-template-rows: 1fr; /* Creates a 1-row grid */
+                right: 20%;
+                bottom: 5%;
+                width: min(40vh, 20vw);
+                height: min(20vh, 10vw);
                 justify-content: space-around;
                 align-content: space-around;
             }
@@ -200,7 +213,6 @@
                 font-size: 4vh;
                 cursor: pointer;
             }
-
             .hide {
                 display: none;
             }
@@ -210,6 +222,10 @@
                 -webkit-user-select: none;
                 -ms-user-select: none;
                 user-select: none;
+            }
+            .prevent-tap-highlight
+            {
+                -webkit-tap-highlight-color: rgba(0,0,0,0);
             }
 
             body.formfactor-touchfirst .formfactor-desktop {
@@ -232,7 +248,7 @@
 
     </head>
 
-    <body class="prevent-highlight">
+    <body class="prevent-highlight prevent-tap-highlight">
         <!-- <script type="text/javascript" src="js/detectmobilebrowser.js"></script> -->
 
         <!-- Import maps polyfill -->
@@ -326,6 +342,11 @@
         <div class="inoutpad formfactor-touchfirst touch-controls hide">
             <div target-action="actionIn" class="button dpad-in">↑</div>
             <div target-action="actionOut" class="button dpad-out">↓</div>
+        </div>
+
+        <div class="rotatepad formfactor-touchfirst touch-controls hide">
+            <div target-action="actionRotateLeft" class="button dpad-rotate-left">↺</div>
+            <div target-action="actionRotateRight" class="button dpad-rotate-right">↻</div>
         </div>
 
         <div id="menu-overlay">
