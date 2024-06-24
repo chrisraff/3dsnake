@@ -43,7 +43,6 @@ var backgroundTimeStamp = 0;
 var orientationRadian = 0;
 var orientationTarget = 0;
 
-var isMobileControls = false;
 var isRecordingBinding = false;
 
 var cubeMaterial;
@@ -186,7 +185,6 @@ function init() {
 
 function setMobileControls(isMobile)
 {
-    isMobileControls = isMobile;
     if (isMobile)
     {
         // remove event listeners
@@ -195,12 +193,20 @@ function setMobileControls(isMobile)
 
         // add touch controls
         document.body.classList.add('formfactor-touchfirst');
+        // add camera draggability
+        const canvas = document.querySelector('#mainCanvas');
+        canvas.addEventListener('touchstart', onTouchStart, false);
+        canvas.addEventListener('touchmove', onTouchMove, false);
     }
     else
     {
         // add event listeners
         document.addEventListener('mousedown', onMouseDown, false);
         document.addEventListener('mousemove', onMouseMove, false);
+
+        // remove event listeners
+        document.removeEventListener('touchstart', onTouchStart, false);
+        document.removeEventListener('touchmove', onTouchMove, false);
 
         // remove touch controls
         document.body.classList.remove('formfactor-touchfirst');
@@ -457,12 +463,50 @@ function movePlanar(theta)
     move(bestVec.x, bestVec.y, bestVec.z);
 }
 
-let mouseX, mouseY;
+// let mouseX, mouseY;
+let touchStartX, touchStartY;
+let lookFracX = 0, lookFracY = 0;
 
 function onMouseMove(event)
 {
-    mouseX = event.clientX;
-    mouseY = event.clientY;
+    let mouseX = event.clientX;
+    let mouseY = event.clientY;
+
+    // Get the total width and height of the screen
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+
+    const convFactor = Math.min(screenWidth, screenHeight);
+
+    lookFracX = (mouseX - (screenWidth  * 0.5)) / convFactor;
+    lookFracY = (mouseY - (screenHeight * 0.5)) / convFactor;
+}
+
+function onTouchStart(event)
+{
+    if (event.touches.length == 1)
+    {
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+    }
+}
+
+function onTouchMove(event)
+{
+    if (event.touches.length == 1)
+    {
+        let deltaX = event.touches[0].clientX - touchStartX;
+        let deltaY = event.touches[0].clientY - touchStartY;
+        touchStartX = event.touches[0].clientX;
+        touchStartY = event.touches[0].clientY;
+
+        lookFracX += deltaX / window.innerWidth;
+        lookFracY += deltaY / window.innerHeight;
+
+        lookFracX = Math.min(0.75, Math.max(-0.75, lookFracX));
+        lookFracY = Math.min(0.75, Math.max(-0.75, lookFracY));
+    }
+
 }
 
 function move(x, y, z)
@@ -496,25 +540,12 @@ function setMenu(menuId)
 
 function updateCameraPosition()
 {
-    // if either mouseX or mouseY is undefined, don't update the camera position
-    if (mouseX === undefined || mouseY === undefined)
-        return;
-
-    // Get the total width and height of the screen
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-
-    const convFactor = Math.min(screenWidth, screenHeight);
-
-    let mouseFracX = (mouseX - (screenWidth  * 0.5)) / convFactor;
-    let mouseFracY = (mouseY - (screenHeight * 0.5)) / convFactor;
-
     // smooth the edges
-    mouseFracX = Math.tanh(3 * mouseFracX);
-    mouseFracY = Math.tanh(3 * mouseFracY);
+    let finalFracX = Math.tanh(3 * lookFracX);
+    let finalFracY = Math.tanh(3 * lookFracY);
 
     const maxbounds = 6;
-    camera.position.set(-mouseFracX * maxbounds, mouseFracY * maxbounds, 12);
+    camera.position.set(-finalFracX * maxbounds, finalFracY * maxbounds, 12);
     camera.lookAt(0, 0, 0);
 }
 
