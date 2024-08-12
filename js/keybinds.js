@@ -149,4 +149,4 @@ function stringifyKeybinds() {
     return JSON.stringify(keyBindings);
 }
 
-export { keyBindings, defaultKeybindings, keydownBinds, mousedownBinds, setupKeyBindings, deleteBinding, loadKeybinds, stringifyKeybinds };
+export { keyBindings, defaultKeybindings, keydownBinds, mousedownBinds, setupKeyBindings, deleteBinding, loadKeybinds, stringifyKeybinds, nullAction };

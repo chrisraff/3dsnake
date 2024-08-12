@@ -134,12 +134,16 @@ class SnakeGame extends EventTarget {
             this.nodes[node_idx].position.copy(tmpVector);
             this.context.scene.add(this.nodes[node_idx]);
 
-            // remove the old food item
-            this.foodNodes[idx].removeFromParent();
-            this.foodNodes.splice(idx, 1);
+            this.removeFood(idx);
 
             this.spawnFood();
         }
+    }
+
+    removeFood = function(idx)
+    {
+        this.foodNodes[idx].removeFromParent();
+        this.foodNodes.splice(idx, 1);
     }
 
     updateDirection(x, y, z)

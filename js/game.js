@@ -53,6 +53,9 @@ var boundsMesh;
 
 var rotateNode;
 
+var showTutorial = true;
+var tickEnabled = true;
+
 // colors
 const damageColor = new THREE.Color(0.1, 0.0, 0.0);
 const blackColor = new THREE.Color(0.0, 0.0, 0.0);
@@ -268,7 +271,8 @@ function initGame()
 
 function moveLoop()
 {
-    game.tick();
+    if (tickEnabled)
+        game.tick();
 
     boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
 
@@ -581,11 +585,185 @@ function handleGameOver()
 
 function handleInvalidMove()
 {
-    // update the relevant life icon
-    document.querySelector(`.snake-life[snake-life-idx='${game.lifeCount}']`).innerText = '⬛';
+    // if in tutorial, don't lose a life
+    if (tutorialData.inTutorial)
+    {
+        // add a life back
+        game.lifeCount++;
+    } else {
+        // update the relevant life icon
+        document.querySelector(`.snake-life[snake-life-idx='${game.lifeCount}']`).innerText = '⬛';
+    }
 
     // pulse the background color
     backgroundTimeStamp = Date.now();
+}
+
+var tutorialData =
+{
+    state: 'move-screenplane',
+    inTutorial: false,
+    lastLoggedTime: 0
+}
+function initTutorial()
+{
+    tutorialData.inTutorial = true;
+    tutorialData.state = 'move-screenplane';
+
+    // disable in / out
+    tutorialData.inAction = keybinds.keyBindings.actionIn.action;
+    tutorialData.outAction = keybinds.keyBindings.actionOut.action;
+    keybinds.keyBindings.actionIn.action = keybinds.keyBindings.nullAction;
+    keybinds.keyBindings.actionOut.action = keybinds.keyBindings.nullAction;
+    // disable rotation
+    tutorialData.rotateLeftAction = keybinds.keyBindings.actionRotateLeft.action;
+    tutorialData.rotateRightAction = keybinds.keyBindings.actionRotateRight.action;
+    keybinds.keyBindings.actionRotateLeft.action = keybinds.keyBindings.nullAction;
+    keybinds.keyBindings.actionRotateRight.action = keybinds.keyBindings.nullAction;
+
+    document.querySelector('#tutorial-move-screenplane').classList.remove('hide');
+    document.querySelector('#tutorial-move-screenplane').style.animationName = 'tutorial-text-fade-in;'
+    document.querySelector('#tutorial-move-screenplane').style.animationFillMode = 'forwards';
+}
+function handleTutorial()
+{
+    if (!tutorialData.inTutorial)
+        return;
+
+    switch (tutorialData.state)
+    {
+        case 'move-screenplane':
+        {
+            // force the spawned food to be within the plane
+            while (game.foodNodes[0].position.z != game.nodes[0].position.z)
+            {
+                // respawn the food
+                game.removeFood(0);
+                game.spawnFood();
+            }
+
+            // check if the player has eaten two foods
+            if (game.nodes.length > 5)
+            {
+                tutorialData.state = 'move-inout';
+                // TODO reenable in / out
+                keybinds.keyBindings.actionIn.action = tutorialData.inAction;
+                keybinds.keyBindings.actionOut.action = tutorialData.outAction;
+
+                document.querySelector('#tutorial-move-screenplane').style.animationName = 'tutorial-text-fade-out';
+                document.querySelector('#tutorial-move-screenplane').style.animationFillMode = 'forwards';
+
+                document.querySelector('#tutorial-move-inout').classList.remove('hide');
+                document.querySelector('#tutorial-move-inout').style.animationName = 'tutorial-text-fade-in';
+                document.querySelector('#tutorial-move-inout').style.animationFillMode = 'forwards';
+
+            }
+        }
+        break;
+        case 'move-inout':
+        {
+            // force the food's z to be close to the screen, then into the screen
+            while (game.foodNodes[0].position.z != {6: 2, 7: -1, 8: game.foodNodes[0].position.z}[game.nodes.length])
+            {
+                game.removeFood(0);
+                game.spawnFood();
+            }
+            
+            // check if the player has eaten two more foods
+            if (game.nodes.length > 7)
+            {
+                tutorialData.state = 'move-panning';
+                tutorialData.lastLoggedTime = Date.now();
+                tutorialData.cameraPos = camera.position.clone();
+                tutorialData.cameraDidMove = false;
+
+                document.querySelector('#tutorial-move-inout').style.animationName = 'tutorial-text-fade-out';
+                document.querySelector('#tutorial-move-inout').style.animationFillMode = 'forwards';
+
+                document.querySelector('#tutorial-move-panning').style.animationName = 'tutorial-text-fade-in';
+                document.querySelector('#tutorial-move-panning').style.animationFillMode = 'forwards';
+                document.querySelector('#tutorial-move-panning').classList.remove('hide');
+            }
+        }
+        break;
+        case 'move-panning':
+        {
+            // check if the player has moved the camera enough
+            if (camera.position.distanceToSquared(tutorialData.cameraPos) > 3)
+                tutorialData.cameraDidMove = true;
+
+            if (Date.now() - tutorialData.lastLoggedTime > 3000 && tutorialData.cameraDidMove)
+            {
+                tutorialData.state = 'info-lives';
+                tutorialData.lastLoggedTime = Date.now();
+
+                tickEnabled = false;
+
+                // reenable rotation
+                keybinds.keyBindings.actionRotateLeft.action = tutorialData.rotateLeftAction;
+                keybinds.keyBindings.actionRotateRight.action = tutorialData.rotateRightAction;
+
+                document.querySelector('#tutorial-move-panning').style.animationName = 'tutorial-text-fade-out';
+                document.querySelector('#tutorial-move-panning').style.animationFillMode = 'forwards';
+
+                document.querySelector('#tutorial-info-lives').style.animationName = 'tutorial-text-fade-in';
+                document.querySelector('#tutorial-info-lives').style.animationFillMode = 'forwards';
+                document.querySelector('#tutorial-info-lives').classList.remove('hide');
+
+                // set #snake-lives to a blinking animation
+                document.querySelector('#snake-lives').style.animationName = 'tutorial-lives-highlight';
+                document.querySelector('#snake-lives').style.animationDuration = '1s';
+                document.querySelector('#snake-lives').style.animationIterationCount = '7';
+            }
+        }
+        break;
+        case 'info-lives':
+        {
+            // check if enough time has passed
+            if (Date.now() - tutorialData.lastLoggedTime > 7000)
+            {
+                tickEnabled = true;
+
+                tutorialData.state = 'finalFadeout';
+                tutorialData.lastLoggedTime = Date.now();
+                
+                document.querySelector('#tutorial-info-lives').style.animationName = 'tutorial-text-fade-out';
+                document.querySelector('#tutorial-info-lives').style.animationFillMode = 'forwards';
+            }
+        }
+        break;
+        case 'finalFadeout':
+        {
+            // check if 0.5 seconds have passed
+            if (Date.now() - tutorialData.lastLoggedTime > 500)
+            {
+                // complete the tutorial
+                resetTutorial(true);
+            }
+        }
+        break;
+    }
+}
+
+function resetTutorial(complete = false)
+{
+    if (complete)
+    {
+        showTutorial = false;
+    }
+
+    // reenable all actions
+    keybinds.keyBindings.actionIn.action = tutorialData.inAction;
+    keybinds.keyBindings.actionOut.action = tutorialData.outAction;
+    keybinds.keyBindings.actionRotateLeft.action = tutorialData.rotateLeftAction;
+    keybinds.keyBindings.actionRotateRight.action = tutorialData.rotateRightAction;
+
+    tutorialData.inTutorial = false;
+    document.querySelectorAll('.tutorial-text').forEach(element => {
+        element.classList.add('hide');
+        element.style.animationName = '';
+    });
+    document.querySelector('#snake-lives').style.animationName = '';
 }
 
 var animate = function ()
@@ -595,6 +773,11 @@ var animate = function ()
     updateCameraPosition();
     updateBackgroundColor();
     updateOrientationAngle(delta);
+
+    if (tutorialData.inTutorial)
+    {
+        handleTutorial();
+    }
 
     requestAnimationFrame( animate );
 
@@ -611,6 +794,11 @@ document.querySelectorAll('.button-play').forEach(button => {
         clearTimeout(moveLoopTimeoutId);
         initGame();
         setPlaying(true);
+
+        if (showTutorial)
+        {
+            initTutorial();
+        }
 
         document.querySelector('#snake-realtime-length').innerHTML = game.nodes.length;
         boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;

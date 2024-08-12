@@ -217,6 +217,19 @@
                 display: none;
             }
 
+            .tutorial-text {
+                position: absolute;
+                top: 50%;
+                text-align: center;
+                width: 100%;
+
+                font-family: Arial;
+                font-size: 25pt;
+
+                animation-duration: 0.5s;
+                animation-iteration-count: 1;
+            }
+
             .prevent-highlight
             {
                 -webkit-user-select: none;
@@ -233,6 +246,37 @@
             }
             body:not(.formfactor-touchfirst) .formfactor-touchfirst {
                 display: none;
+            }
+
+            @keyframes tutorial-text-fade-in {
+                0% {
+                    color: rgba(255,255,255,0.0);
+                }
+                100% {
+                    color: rgba(255,255,255,1.0);
+                }
+            }
+            @keyframes tutorial-text-fade-out {
+                0% {
+                    color: rgba(255,255,255,1.0);
+                }
+                100% {
+                    color: rgba(255,255,255,0.0);
+                }
+            }
+            
+            @keyframes tutorial-lives-highlight {
+                0% {
+                    background: rgba(255, 255, 255, 0.0);
+                }
+
+                50% {
+                    background: rgba(255, 255, 255, 0.8);
+                }
+
+                100% {
+                    background: rgba(255, 255, 255, 0.0);
+                }
             }
         </style>
 
@@ -347,6 +391,14 @@
         <div class="rotatepad formfactor-touchfirst touch-controls hide">
             <div target-action="actionRotateLeft" class="button dpad-rotate-left">↺</div>
             <div target-action="actionRotateRight" class="button dpad-rotate-right">↻</div>
+        </div>
+
+        <div id="tutorial-move-screenplane" class="tutorial-text hide">Use WASD keys to move</div>
+        <div id="tutorial-move-inout" class="tutorial-text hide">Use Left Click to move in and Right Click to move out</div>
+        <div id="tutorial-move-panning" class="tutorial-text hide">Move the mouse to look around</div>
+        <div id="tutorial-info-lives" class="tutorial-text hide">
+            <p>You lose lives by running into yourself and going out of bounds.</p>
+            <p>Lives are shown in the bottom left corner.</p>
         </div>
 
         <div id="menu-overlay">
