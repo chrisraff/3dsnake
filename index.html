@@ -237,6 +237,10 @@
                 display: none;
             }
 
+            .tip-different-direction {
+                font-size: 50%;
+            }
+
             .prevent-highlight
             {
                 -webkit-user-select: none;
@@ -414,12 +418,24 @@
         </div>
 
         <div id="tutorial-move-screenplane" class="tutorial-text hide">
-            <span class="formfactor-desktop">Use WASD keys to move</span>
+            <span class="formfactor-desktop">Use the WASD keys to move</span>
             <span class="formfactor-touchfirst">Use the left D-Pad to move</span>
+
+            <p class="tip-different-direction hide">Try picking a different direction.</p>
         </div>
-        <div id="tutorial-move-inout" class="tutorial-text hide">
-            <span class="formfactor-desktop">Use Left Click to move in and Right Click to move out</span>
-            <span class="formfactor-touchfirst">Use the right D-Pad to move in and out</span>
+        <div id="tutorial-move-in" class="tutorial-text hide">
+            <span class="formfactor-desktop">Use Left Click to move in</span>
+            <span class="formfactor-touchfirst">Press Up on the right pad to move in</span>
+        </div>
+        <div id="tutorial-move-screenplane2" class="tutorial-text hide">
+            <span class="formfactor-desktop">Use WASD again for the next food</span>
+            <span class="formfactor-touchfirst">Use the left D-Pad for the next food</span>
+
+            <p class="tip-different-direction hide">Try picking a different direction.</p>
+        </div>
+        <div id="tutorial-move-out" class="tutorial-text hide">
+            <span class="formfactor-desktop">Use Right Click to move out</span>
+            <span class="formfactor-touchfirst">Press Down on the right pad to move in</span>
         </div>
         <div id="tutorial-move-panning" class="tutorial-text hide">
             <span class="formfactor-desktop">Move the mouse to look around</span>
@@ -520,6 +536,13 @@
                 <button class="button-main button-resume">Resume</button>
                 <button target-menu="menu-options">Options</button>
             </div>
+
+            <div id="menu-tutorial-complete" class="menu">
+                <h2>Tutorial Complete</h2>
+
+                <button class="button-main button-play">Play</button>
+                <button target-menu="menu-options" class="formfactor-desktop">Options</button>
+                <button class="button-tutorial">Restart Tutorial</button>
         </div>
     </body>
 </html>

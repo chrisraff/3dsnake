@@ -115,7 +115,7 @@ function init() {
     let ambLight = new THREE.AmbientLight( 0x808080 );
     scene.add( ambLight );
 
-    // tmpVector = new THREE.Vector3();
+    tmpVector = new THREE.Vector3();
 
     cube_geometry = new THREE.BoxGeometry(0.9, 0.9, 0.9);
     bounds_geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -586,21 +586,19 @@ function updateOrientationAngle(delta)
 
 function handleGameOver()
 {
+    if (tutorialData.inTutorial)
+    {
+        resetTutorial();
+    }
+
     setPlaying(false);
     setMenu('menu-main');
 }
 
 function handleInvalidMove()
 {
-    // if in tutorial, don't lose a life
-    if (tutorialData.inTutorial)
-    {
-        // add a life back
-        game.lifeCount++;
-    } else {
-        // update the relevant life icon
-        document.querySelector(`.snake-life[snake-life-idx='${game.lifeCount}']`).innerText = '⬛';
-    }
+    // update the relevant life icon
+    document.querySelector(`.snake-life[snake-life-idx='${game.lifeCount}']`).innerText = '⬛';
 
     // pulse the background color
     backgroundTimeStamp = Date.now();
@@ -610,7 +608,15 @@ var tutorialData =
 {
     state: 'move-screenplane',
     inTutorial: false,
-    lastLoggedTime: 0
+    lastLoggedTime: 0,
+    foodMap: {
+        4: [1, 1, 0],
+        5: [-2, -2, 0],
+        6: [-2, -2, -2],
+        7: [1, 1, -2],
+        8: [1, 1, 0],
+        9: [-2, 2, 0],
+    }
 }
 function initTutorial()
 {
@@ -644,22 +650,31 @@ function handleTutorial()
     if (!tutorialData.inTutorial)
         return;
 
+    // set the food's position explicitly for the tutorial
+    game.foodNodes[0].position.set(...tutorialData.foodMap[game.nodes.length]);
+
     switch (tutorialData.state)
     {
         case 'move-screenplane':
         {
-            // force the spawned food to be within the plane
-            while (game.foodNodes[0].position.z != game.nodes[0].position.z)
+            // if the player is about to move past 3 on any axis, disable the movement
+            tmpVector.copy(game.nodes[0].position).add(game.nextDirection);
+            tickEnabled = true;
+            for (let i = 0; i < 3; i++)
             {
-                // respawn the food
-                game.removeFood(0);
-                game.spawnFood();
+                if (Math.abs(tmpVector.getComponent(i)) > 3)
+                {
+                    tickEnabled = false;
+                }
             }
+            document.querySelectorAll('.tip-different-direction').forEach(element => {
+                element.classList.toggle('hide', tickEnabled);
+            });
 
             // check if the player has eaten two foods
             if (game.nodes.length > 5)
             {
-                tutorialData.state = 'move-inout';
+                tutorialData.state = 'move-in';
                 // reenable in / out
                 keybinds.keyBindings.actionIn.action = tutorialData.inAction;
                 keybinds.keyBindings.actionOut.action = tutorialData.outAction;
@@ -669,36 +684,95 @@ function handleTutorial()
                 document.querySelector('#tutorial-move-screenplane').style.animationFillMode = 'forwards';
                 document.querySelector('.dpad').style.animationName = '';
 
-                document.querySelector('#tutorial-move-inout').classList.remove('hide');
-                document.querySelector('#tutorial-move-inout').style.animationName = 'tutorial-text-fade-in';
-                document.querySelector('#tutorial-move-inout').style.animationFillMode = 'forwards';
-                document.querySelector('.inoutpad').style.animationName = 'tutorial-highlight-secondary';
-                document.querySelector('.inoutpad').style.animationDuration = '1s';
-                document.querySelector('.inoutpad').style.animationIterationCount = '5';
+                document.querySelector('#tutorial-move-in').classList.remove('hide');
+                document.querySelector('#tutorial-move-in').style.animationName = 'tutorial-text-fade-in';
+                document.querySelector('#tutorial-move-in').style.animationFillMode = 'forwards';
+                document.querySelector('.dpad-in').style.animationName = 'tutorial-highlight-secondary';
+                document.querySelector('.dpad-in').style.animationDuration = '1s';
+                document.querySelector('.dpad-in').style.animationIterationCount = '5';
 
+                tickEnabled = false;
             }
         }
         break;
-        case 'move-inout':
+        case 'move-in':
         {
-            // force the food's z to be into the screen, then close to the screen
-            while (game.foodNodes[0].position.z != {6: -1, 7: 2, 8: game.foodNodes[0].position.z}[game.nodes.length])
-            {
-                game.removeFood(0);
-                game.spawnFood();
-            }
+            tickEnabled = game.nextDirection.equals(VECZN);
 
-            // check if the player has eaten two more foods
+            // check if the player has eaten another food
+            if (game.nodes.length > 6)
+            {
+                tutorialData.state = 'move-screenplane2';
+
+                document.querySelector('#tutorial-move-in').style.animationName = 'tutorial-text-fade-out';
+                document.querySelector('#tutorial-move-in').style.animationFillMode = 'forwards';
+                document.querySelector('.dpad-in').style.animationName = '';
+
+                document.querySelector('#tutorial-move-screenplane2').classList.remove('hide');
+                document.querySelector('#tutorial-move-screenplane2').style.animationName = 'tutorial-text-fade-in';
+                document.querySelector('#tutorial-move-screenplane2').style.animationFillMode = 'forwards';
+
+                tickEnabled = false;
+            }
+        }
+        break;
+        case 'move-screenplane2':
+        {
+            tickEnabled = true;
+            // if the player is about to move past 3 on any axis, disable the movement
+            tmpVector.copy(game.nodes[0].position).add(game.nextDirection);
+            for (let i = 0; i < 3; i++)
+            {
+                if (Math.abs(tmpVector.getComponent(i)) > 3)
+                {
+                    tickEnabled = false;
+                }
+            }
+            document.querySelectorAll('.tip-different-direction').forEach(element => {
+                element.classList.toggle('hide', tickEnabled);
+            });
+
+            // if the player isn't moving in the plane, also disable the tick
+            if (game.nextDirection.z != 0)
+                tickEnabled = false;
+
+            // check if the player has eaten another food
             if (game.nodes.length > 7)
             {
+                tutorialData.state = 'move-out';
+
+                document.querySelector('#tutorial-move-screenplane2').style.animationName = 'tutorial-text-fade-out';
+                document.querySelector('#tutorial-move-screenplane2').style.animationFillMode = 'forwards';
+
+                document.querySelector('#tutorial-move-out').classList.remove('hide');
+                document.querySelector('#tutorial-move-out').style.animationName = 'tutorial-text-fade-in';
+                document.querySelector('#tutorial-move-out').style.animationFillMode = 'forwards';
+                document.querySelector('.dpad-out').style.animationName = 'tutorial-highlight-secondary';
+                document.querySelector('.dpad-out').style.animationDuration = '1s';
+                document.querySelector('.dpad-out').style.animationIterationCount = '5';
+
+                tickEnabled = false;
+            }
+        }
+        break;
+        case 'move-out':
+        {
+            tickEnabled = game.nextDirection.equals(VECZ);
+
+            // check if the player has eaten another food
+            if (game.nodes.length > 8)
+            {
                 tutorialData.state = 'move-panning';
+
                 tutorialData.lastLoggedTime = Date.now();
                 tutorialData.cameraPos = camera.position.clone();
                 tutorialData.cameraDidMove = false;
 
-                document.querySelector('#tutorial-move-inout').style.animationName = 'tutorial-text-fade-out';
-                document.querySelector('#tutorial-move-inout').style.animationFillMode = 'forwards';
-                document.querySelector('.inoutpad').style.animationName = '';
+                tickEnabled = false;
+
+                document.querySelector('#tutorial-move-out').style.animationName = 'tutorial-text-fade-out';
+                document.querySelector('#tutorial-move-out').style.animationFillMode = 'forwards';
+                document.querySelector('.dpad-out').style.animationName = '';
 
                 document.querySelector('#tutorial-move-panning').style.animationName = 'tutorial-text-fade-in';
                 document.querySelector('#tutorial-move-panning').style.animationFillMode = 'forwards';
@@ -716,8 +790,9 @@ function handleTutorial()
             {
                 tutorialData.state = 'info-lives';
                 tutorialData.lastLoggedTime = Date.now();
-
-                tickEnabled = false;
+                if (game.lifeCount == 1)
+                    game.lifeCount = 2;
+                tutorialData.lifeCount = game.lifeCount;
 
                 // reenable rotation
                 keybinds.keyBindings.actionRotateLeft.action = tutorialData.rotateLeftAction;
@@ -735,11 +810,18 @@ function handleTutorial()
                 document.querySelector('#snake-lives').style.animationName = 'tutorial-highlight';
                 document.querySelector('#snake-lives').style.animationDuration = '1s';
                 document.querySelector('#snake-lives').style.animationIterationCount = '7';
+
+                tickEnabled = true;
             }
         }
         break;
         case 'info-lives':
         {
+            game.nextDirection.set(0, 0, 1);
+
+            if (game.lifeCount != tutorialData.lifeCount)
+                tickEnabled = false;
+
             // check if enough time has passed
             if (Date.now() - tutorialData.lastLoggedTime > 7000)
             {
@@ -760,6 +842,9 @@ function handleTutorial()
             {
                 // complete the tutorial
                 resetTutorial(true);
+
+                setMenu('menu-tutorial-complete');
+                setPlaying(false);
             }
         }
         break;
@@ -778,6 +863,8 @@ function resetTutorial(complete = false)
     keybinds.keyBindings.actionOut.action = tutorialData.outAction;
     keybinds.keyBindings.actionRotateLeft.action = tutorialData.rotateLeftAction;
     keybinds.keyBindings.actionRotateRight.action = tutorialData.rotateRightAction;
+    document.querySelector('.inoutpad').classList.remove('hide');
+    document.querySelector('.rotatepad').classList.remove('hide');
 
     tutorialData.inTutorial = false;
     document.querySelectorAll('.tutorial-text').forEach(element => {
@@ -808,22 +895,25 @@ var animate = function ()
 // setup buttons
 let menuQueue = [];
 
-document.querySelectorAll('.button-play').forEach(button => {
-    button.onclick = () => {
-        setMenu(null);
+function onClickStart()
+{
+    setMenu(null);
 
-        clearTimeout(moveLoopTimeoutId);
-        initGame();
-        setPlaying(true);
+    clearTimeout(moveLoopTimeoutId);
+    initGame();
+    setPlaying(true);
 
-        if (showTutorial)
-        {
-            initTutorial();
-        }
-
-        document.querySelector('#snake-realtime-length').innerHTML = game.nodes.length;
-        boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
+    if (showTutorial)
+    {
+        initTutorial();
     }
+
+    document.querySelector('#snake-realtime-length').innerHTML = game.nodes.length;
+    boundsMaterial.uniforms.playerPosition.value = game.nodes[0].position;
+}
+
+document.querySelectorAll('.button-play').forEach(button => {
+    button.onclick = onClickStart;
 });
 
 // query all elements with any value for attribute 'target-menu' and have it set the menu to that value
@@ -869,6 +959,13 @@ document.querySelectorAll('.button-fullscreen').forEach(button => {
         {
             document.documentElement.requestFullscreen();
         }
+    }
+});
+document.querySelectorAll('.button-tutorial').forEach(button => {
+    button.onclick = () =>
+    {
+        showTutorial = true;
+        onClickStart();
     }
 });
 
