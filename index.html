@@ -229,6 +229,8 @@
 
                 animation-duration: 0.5s;
                 animation-iteration-count: 1;
+
+                pointer-events: none;
             }
 
             .menu-overlay-active .tutorial-text {
@@ -270,13 +272,26 @@
                 }
             }
 
-            @keyframes tutorial-lives-highlight {
+            @keyframes tutorial-highlight {
                 0% {
                     background: rgba(255, 255, 255, 0.0);
                 }
 
-                50% {
+                90% {
                     background: rgba(255, 255, 255, 0.8);
+                }
+
+                100% {
+                    background: rgba(255, 255, 255, 0.0);
+                }
+            }
+            @keyframes tutorial-highlight-secondary {
+                0% {
+                    background: rgba(255, 255, 255, 0.0);
+                }
+
+                90% {
+                    background: rgba(255, 255, 255, 0.5);
                 }
 
                 100% {
@@ -398,12 +413,21 @@
             <div target-action="actionRotateRight" class="button dpad-rotate-right">↻</div>
         </div>
 
-        <div id="tutorial-move-screenplane" class="tutorial-text hide">Use WASD keys to move</div>
-        <div id="tutorial-move-inout" class="tutorial-text hide">Use Left Click to move in and Right Click to move out</div>
-        <div id="tutorial-move-panning" class="tutorial-text hide">Move the mouse to look around</div>
+        <div id="tutorial-move-screenplane" class="tutorial-text hide">
+            <span class="formfactor-desktop">Use WASD keys to move</span>
+            <span class="formfactor-touchfirst">Use the left D-Pad to move</span>
+        </div>
+        <div id="tutorial-move-inout" class="tutorial-text hide">
+            <span class="formfactor-desktop">Use Left Click to move in and Right Click to move out</span>
+            <span class="formfactor-touchfirst">Use the right D-Pad to move in and out</span>
+        </div>
+        <div id="tutorial-move-panning" class="tutorial-text hide">
+            <span class="formfactor-desktop">Move the mouse to look around</span>
+            <span class="formfactor-touchfirst">Swipe the screen to look around</span>
+        </div>
         <div id="tutorial-info-lives" class="tutorial-text hide">
-            <p>You lose lives by running into yourself and going out of bounds.</p>
             <p>Lives are shown in the bottom left corner.</p>
+            <p>You lose lives by running into yourself and going out of bounds.</p>
         </div>
 
         <div id="menu-overlay">
@@ -413,7 +437,7 @@
                 <br/>
 
                 <button class="button-main button-play">Play</button>
-                <button target-menu="menu-options">Options</button>
+                <button target-menu="menu-options" class="formfactor-desktop">Options</button>
                 <button class="button-fullscreen formfactor-touchfirst">Fullscreen</button>
             </div>
 

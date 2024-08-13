@@ -182,6 +182,11 @@ function init() {
         pauseGame();
     });
 
+    // Add a touchmove event listener to prevent the default refresh gesture
+    document.addEventListener('touchmove', function(event) {
+        event.preventDefault();
+    }, { passive: false });
+
     //
     initGame();
 }
@@ -617,15 +622,22 @@ function initTutorial()
     tutorialData.outAction = keybinds.keyBindings.actionOut.action;
     keybinds.keyBindings.actionIn.action = keybinds.nullAction;
     keybinds.keyBindings.actionOut.action = keybinds.nullAction;
+    document.querySelector('.inoutpad').classList.add('hide');
+
     // disable rotation
     tutorialData.rotateLeftAction = keybinds.keyBindings.actionRotateLeft.action;
     tutorialData.rotateRightAction = keybinds.keyBindings.actionRotateRight.action;
     keybinds.keyBindings.actionRotateLeft.action = keybinds.nullAction;
     keybinds.keyBindings.actionRotateRight.action = keybinds.nullAction;
+    document.querySelector('.rotatepad').classList.add('hide');
 
     document.querySelector('#tutorial-move-screenplane').classList.remove('hide');
     document.querySelector('#tutorial-move-screenplane').style.animationName = 'tutorial-text-fade-in;'
     document.querySelector('#tutorial-move-screenplane').style.animationFillMode = 'forwards';
+
+    document.querySelector('.dpad').style.animationName = 'tutorial-highlight-secondary';
+    document.querySelector('.dpad').style.animationDuration = '1s';
+    document.querySelector('.dpad').style.animationIterationCount = '5';
 }
 function handleTutorial()
 {
@@ -648,24 +660,29 @@ function handleTutorial()
             if (game.nodes.length > 5)
             {
                 tutorialData.state = 'move-inout';
-                // TODO reenable in / out
+                // reenable in / out
                 keybinds.keyBindings.actionIn.action = tutorialData.inAction;
                 keybinds.keyBindings.actionOut.action = tutorialData.outAction;
+                document.querySelector('.inoutpad').classList.remove('hide');
 
                 document.querySelector('#tutorial-move-screenplane').style.animationName = 'tutorial-text-fade-out';
                 document.querySelector('#tutorial-move-screenplane').style.animationFillMode = 'forwards';
+                document.querySelector('.dpad').style.animationName = '';
 
                 document.querySelector('#tutorial-move-inout').classList.remove('hide');
                 document.querySelector('#tutorial-move-inout').style.animationName = 'tutorial-text-fade-in';
                 document.querySelector('#tutorial-move-inout').style.animationFillMode = 'forwards';
+                document.querySelector('.inoutpad').style.animationName = 'tutorial-highlight-secondary';
+                document.querySelector('.inoutpad').style.animationDuration = '1s';
+                document.querySelector('.inoutpad').style.animationIterationCount = '5';
 
             }
         }
         break;
         case 'move-inout':
         {
-            // force the food's z to be close to the screen, then into the screen
-            while (game.foodNodes[0].position.z != {6: 2, 7: -1, 8: game.foodNodes[0].position.z}[game.nodes.length])
+            // force the food's z to be into the screen, then close to the screen
+            while (game.foodNodes[0].position.z != {6: -1, 7: 2, 8: game.foodNodes[0].position.z}[game.nodes.length])
             {
                 game.removeFood(0);
                 game.spawnFood();
@@ -681,6 +698,7 @@ function handleTutorial()
 
                 document.querySelector('#tutorial-move-inout').style.animationName = 'tutorial-text-fade-out';
                 document.querySelector('#tutorial-move-inout').style.animationFillMode = 'forwards';
+                document.querySelector('.inoutpad').style.animationName = '';
 
                 document.querySelector('#tutorial-move-panning').style.animationName = 'tutorial-text-fade-in';
                 document.querySelector('#tutorial-move-panning').style.animationFillMode = 'forwards';
@@ -704,6 +722,7 @@ function handleTutorial()
                 // reenable rotation
                 keybinds.keyBindings.actionRotateLeft.action = tutorialData.rotateLeftAction;
                 keybinds.keyBindings.actionRotateRight.action = tutorialData.rotateRightAction;
+                document.querySelector('.rotatepad').classList.remove('hide');
 
                 document.querySelector('#tutorial-move-panning').style.animationName = 'tutorial-text-fade-out';
                 document.querySelector('#tutorial-move-panning').style.animationFillMode = 'forwards';
@@ -713,7 +732,7 @@ function handleTutorial()
                 document.querySelector('#tutorial-info-lives').classList.remove('hide');
 
                 // set #snake-lives to a blinking animation
-                document.querySelector('#snake-lives').style.animationName = 'tutorial-lives-highlight';
+                document.querySelector('#snake-lives').style.animationName = 'tutorial-highlight';
                 document.querySelector('#snake-lives').style.animationDuration = '1s';
                 document.querySelector('#snake-lives').style.animationIterationCount = '7';
             }
@@ -728,7 +747,7 @@ function handleTutorial()
 
                 tutorialData.state = 'finalFadeout';
                 tutorialData.lastLoggedTime = Date.now();
-                
+
                 document.querySelector('#tutorial-info-lives').style.animationName = 'tutorial-text-fade-out';
                 document.querySelector('#tutorial-info-lives').style.animationFillMode = 'forwards';
             }
