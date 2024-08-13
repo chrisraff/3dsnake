@@ -213,6 +213,7 @@
                 font-size: 4vh;
                 cursor: pointer;
             }
+
             .hide {
                 display: none;
             }
@@ -228,6 +229,10 @@
 
                 animation-duration: 0.5s;
                 animation-iteration-count: 1;
+            }
+
+            .menu-overlay-active .tutorial-text {
+                display: none;
             }
 
             .prevent-highlight
@@ -264,7 +269,7 @@
                     color: rgba(255,255,255,0.0);
                 }
             }
-            
+
             @keyframes tutorial-lives-highlight {
                 0% {
                     background: rgba(255, 255, 255, 0.0);

@@ -535,11 +535,13 @@ function setMenu(menuId)
     document.querySelectorAll('.menu').forEach(menu => {
         menu.classList.remove('menu-active');
     });
+    document.body.classList.remove('menu-overlay-active');
 
     if (menuId == null)
         return;
 
     document.getElementById(menuId).classList.add('menu-active');
+    document.body.classList.add('menu-overlay-active');
 }
 
 function updateCameraPosition()
@@ -613,13 +615,13 @@ function initTutorial()
     // disable in / out
     tutorialData.inAction = keybinds.keyBindings.actionIn.action;
     tutorialData.outAction = keybinds.keyBindings.actionOut.action;
-    keybinds.keyBindings.actionIn.action = keybinds.keyBindings.nullAction;
-    keybinds.keyBindings.actionOut.action = keybinds.keyBindings.nullAction;
+    keybinds.keyBindings.actionIn.action = keybinds.nullAction;
+    keybinds.keyBindings.actionOut.action = keybinds.nullAction;
     // disable rotation
     tutorialData.rotateLeftAction = keybinds.keyBindings.actionRotateLeft.action;
     tutorialData.rotateRightAction = keybinds.keyBindings.actionRotateRight.action;
-    keybinds.keyBindings.actionRotateLeft.action = keybinds.keyBindings.nullAction;
-    keybinds.keyBindings.actionRotateRight.action = keybinds.keyBindings.nullAction;
+    keybinds.keyBindings.actionRotateLeft.action = keybinds.nullAction;
+    keybinds.keyBindings.actionRotateRight.action = keybinds.nullAction;
 
     document.querySelector('#tutorial-move-screenplane').classList.remove('hide');
     document.querySelector('#tutorial-move-screenplane').style.animationName = 'tutorial-text-fade-in;'
@@ -668,7 +670,7 @@ function handleTutorial()
                 game.removeFood(0);
                 game.spawnFood();
             }
-            
+
             // check if the player has eaten two more foods
             if (game.nodes.length > 7)
             {
