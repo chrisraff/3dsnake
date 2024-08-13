@@ -184,7 +184,9 @@ function init() {
 
     // Add a touchmove event listener to prevent the default refresh gesture
     document.addEventListener('touchmove', function(event) {
-        event.preventDefault();
+        if (!event.target.classList.contains('scrollable-element')) {
+            event.preventDefault();
+        }
     }, { passive: false });
 
     // If the user hasn't played in 90 days, show the tutorial
