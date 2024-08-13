@@ -601,8 +601,75 @@ function handleGameOver()
         resetTutorial();
     }
 
+    // get the scores from local storage
+    const storedScores = localStorage.getItem('scores', '[]');
+    let scores = [];
+
+    if (storedScores) {
+        scores = JSON.parse(storedScores);
+    }
+
+    const currentDate = Date.now();
+
+    // add the current score to the scores array
+    scores.push({ score: game.nodes.length, date: currentDate });
+    // sort the scores by score in descending order
+    scores.sort((a, b) => {
+        if (a.score === b.score) {
+            return a.date - b.date; // sort by older dates first if scores are equal
+        }
+        return b.score - a.score;
+    });
+
+    // only keep the top 10 scores
+    scores = scores.slice(0, 10);
+
+    // save the scores back to local storage
+    localStorage.setItem('scores', JSON.stringify(scores));
+
+    // populate the leaderboard table
+    const leaderboard = document.querySelector('#leaderboard');
+    leaderboard.innerHTML = '';
+    const header = document.createElement('tr');
+    const rankHeader = document.createElement('th');
+    const scoreHeader = document.createElement('th');
+    const dateHeader = document.createElement('th');
+
+    rankHeader.innerText = 'Rank';
+    scoreHeader.innerText = 'Score';
+    dateHeader.innerText = 'Date';
+
+    header.appendChild(rankHeader);
+    header.appendChild(scoreHeader);
+    header.appendChild(dateHeader);
+
+    leaderboard.appendChild(header);
+
+    scores.forEach((score, idx) => {
+        const row = document.createElement('tr');
+        const rank = document.createElement('td');
+        const scoreCell = document.createElement('td');
+        const date = document.createElement('td');
+
+        rank.innerText = idx + 1;
+        scoreCell.innerText = score.score;
+        date.innerText = new Date(score.date).toLocaleDateString();
+
+        row.appendChild(rank);
+        row.appendChild(scoreCell);
+        row.appendChild(date);
+
+        if (score.date === currentDate) {
+            row.style.animationName = 'leaderboard-highlight';
+            row.style.animationDuration = '1s';
+            row.style.animationIterationCount = 'infinite';
+        }
+
+        leaderboard.appendChild(row);
+    });
+
     setPlaying(false);
-    setMenu('menu-main');
+    setMenu('menu-gameover');
     storageSetItem('lastPlayed', Date.now());
 }
 
@@ -928,14 +995,18 @@ document.querySelectorAll('.button-play').forEach(button => {
     button.onclick = onClickStart;
 });
 
-// query all elements with any value for attribute 'target-menu' and have it set the menu to that value
-document.querySelectorAll('[target-menu]').forEach(button => {
-    button.onclick = () =>
-    {
+function onClickTargetMenuButton(button)
+{
+    if (!button.hasAttribute('menu-no-queue')) {
         const currentMenuId = document.querySelector('.menu.menu-active').id;
         menuQueue.push(currentMenuId);
-        setMenu(button.getAttribute('target-menu'));
     }
+    setMenu(button.getAttribute('target-menu'));
+}
+
+// query all elements with any value for attribute 'target-menu' and have it set the menu to that value
+document.querySelectorAll('[target-menu]').forEach(button => {
+    button.onclick = () => onClickTargetMenuButton(button);
 });
 
 document.querySelectorAll('.button-back').forEach(button => {

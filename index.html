@@ -213,6 +213,38 @@
                 font-size: 4vh;
                 cursor: pointer;
             }
+            #leaderboard {
+                border-collapse: collapse;
+                width: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            #leaderboard th,
+            #leaderboard td {
+                border: 1px solid white;
+                padding: 8px;
+                text-align: left;
+            }
+
+            #leaderboard th {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+
+            #leaderboard tr:nth-child(even) {
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            @keyframes leaderboard-highlight {
+                0% {
+                    background: rgba(255, 255, 255, 0.0);
+                }
+                80% {
+                    background: rgba(255, 255, 255, 0.5);
+                }
+                100% {
+                    background: rgba(255, 255, 255, 0.0);
+                }
+            }
 
             .hide {
                 display: none;
@@ -537,8 +569,18 @@
                 <button target-menu="menu-options">Options</button>
             </div>
 
+            <div id="menu-gameover" class="menu">
+                <h2>Game Over</h2>
+
+                <table id="leaderboard">
+                </table>
+
+                <button class="button-main" target-menu="menu-main" menu-no-queue>Main Menu</button>
+
             <div id="menu-tutorial-complete" class="menu">
                 <h2>Tutorial Complete</h2>
+
+                <br/>
 
                 <button class="button-main button-play">Play</button>
                 <button target-menu="menu-options" class="formfactor-desktop">Options</button>
