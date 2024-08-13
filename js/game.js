@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { SnakeGame } from './snake.js';
 import * as keybinds from './keybinds.js';
-import { storageSetItem } from './storage.js';
+import { storageSetItem, storageGetItem } from './storage.js';
 
 // webpage objects
 
@@ -186,6 +186,16 @@ function init() {
     document.addEventListener('touchmove', function(event) {
         event.preventDefault();
     }, { passive: false });
+
+    // If the user hasn't played in 90 days, show the tutorial
+    try {
+        const lastPlayed = Number(storageGetItem('lastPlayed', '0'));
+        const now = Date.now();
+        const timeSinceLastPlayed = now - lastPlayed;
+        showTutorial = timeSinceLastPlayed > 1000 * 60 * 60 * 24 * 90;
+    } catch (error) {
+        console.error(error);
+    }
 
     //
     initGame();
@@ -593,6 +603,7 @@ function handleGameOver()
 
     setPlaying(false);
     setMenu('menu-main');
+    storageSetItem('lastPlayed', Date.now());
 }
 
 function handleInvalidMove()
@@ -843,6 +854,7 @@ function handleTutorial()
                 // complete the tutorial
                 resetTutorial(true);
 
+                storageSetItem('lastPlayed', Date.now());
                 setMenu('menu-tutorial-complete');
                 setPlaying(false);
             }
