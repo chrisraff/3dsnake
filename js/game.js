@@ -671,6 +671,8 @@ function handleGameOver()
         scoreCell.innerText = score.length;
         date.innerText = new Date(score.date).toLocaleDateString();
 
+        scoreCell.style.fontWeight = 'bold';
+
         row.appendChild(rank);
         row.appendChild(scoreCell);
         row.appendChild(date);

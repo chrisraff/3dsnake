@@ -137,26 +137,28 @@
                 padding: 5px;
                 gap: 10px;
             }
-            /* Scrollbar styling */
-            .binding-area::-webkit-scrollbar {
-                height: 8px;
-            }
-            .binding-area::-webkit-scrollbar-track {
-                background: rgba(255, 255, 255, 0.0);
-                border-radius: 5px;
-            }
-            .binding-area::-webkit-scrollbar-thumb {
-                background: rgba(255, 255, 255, 0.5);
-                border-radius: 5px;
-            }
-            .binding-area::-webkit-scrollbar-thumb:hover {
-                background: rgba(255, 255, 255, 0.7);
-            }
 
             .button-add-binding {
                 flex-shrink: 0;
                 padding: 0px 4px !important;
                 align-self: center;
+            }
+
+            /* Scrollbar styling */
+            ::-webkit-scrollbar {
+                height: 8px;
+                width: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.0);
+                border-radius: 5px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.5);
+                border-radius: 5px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.7);
             }
 
             .dpad {
