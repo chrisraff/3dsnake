@@ -184,7 +184,19 @@ function init() {
 
     // Add a touchmove event listener to prevent the default refresh gesture
     document.addEventListener('touchmove', function(event) {
-        if (!event.target.classList.contains('scrollable-element')) {
+        // console.log(event.target);
+        let targetElement = event.target;
+        let isScrollableElement = false;
+
+        while (targetElement !== null) {
+            if (targetElement.classList.contains('leaderboard-container')) {
+            isScrollableElement = true;
+            break;
+            }
+            targetElement = targetElement.parentElement;
+        }
+
+        if (!isScrollableElement) {
             event.preventDefault();
         }
     }, { passive: false });
