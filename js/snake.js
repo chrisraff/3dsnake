@@ -21,6 +21,13 @@ class SnakeGame extends EventTarget {
         this.lifeCount = 3;
         this.damageCooldown = 0;
 
+        this.foodBoundsRamp = {
+            60: [7, 7, 7],
+            125: [9, 9, 9],
+            375: [11, 11, 11],
+            800: [13, 13, 13]
+        }
+
         this.isMakingInvalidMove = false;
     }
 
@@ -40,6 +47,8 @@ class SnakeGame extends EventTarget {
         this.foodNodes = [];
         this.lifeCount = 3;
         this.isMakingInvalidMove = false;
+
+        this.foodBounds = [5, 5, 5];
 
         for (let i = 0; i < this.startLength; i++)
         {
@@ -137,6 +146,12 @@ class SnakeGame extends EventTarget {
             this.removeFood(idx);
 
             this.spawnFood();
+        }
+
+        // check for bounds increase
+        if (this.foodBoundsRamp[this.nodes.length] != undefined)
+        {
+            this.foodBounds = this.foodBoundsRamp[this.nodes.length];
         }
     }
 
