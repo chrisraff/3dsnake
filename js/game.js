@@ -659,6 +659,8 @@ function handleGameOver()
 
     leaderboard.appendChild(header);
 
+    var focusRow = null;
+
     scores.forEach((score, idx) => {
         const row = document.createElement('tr');
         const rank = document.createElement('td');
@@ -677,6 +679,7 @@ function handleGameOver()
             row.style.animationName = 'leaderboard-highlight';
             row.style.animationDuration = '1s';
             row.style.animationIterationCount = 'infinite';
+            focusRow = row;
         }
 
         leaderboard.appendChild(row);
@@ -685,6 +688,13 @@ function handleGameOver()
     setPlaying(false);
     setMenu('menu-gameover');
     storageSetItem('lastPlayed', Date.now());
+
+    // first, scroll to top
+    header.scrollIntoView();
+    // then, scroll to the highlighted row
+    if (focusRow) {
+        focusRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 }
 
 function handleInvalidMove()
