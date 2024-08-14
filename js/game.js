@@ -604,7 +604,7 @@ function handleGameOver()
     }
 
     // get the scores from local storage
-    const storedScores = localStorage.getItem('scores', '[]');
+    const storedScores = storageGetItem('scores', '[]');
     let scores = [];
 
     if (storedScores) {
@@ -614,20 +614,20 @@ function handleGameOver()
     const currentDate = Date.now();
 
     // add the current score to the scores array
-    scores.push({ score: game.nodes.length, date: currentDate });
+    scores.push({ length: game.nodes.length, date: currentDate, mode: 'n' });
     // sort the scores by score in descending order
     scores.sort((a, b) => {
-        if (a.score === b.score) {
-            return a.date - b.date; // sort by older dates first if scores are equal
+        if (a.length === b.length) {
+            return a.date - b.date; // sort by older dates first if lengths are equal
         }
-        return b.score - a.score;
+        return b.length - a.length;
     });
 
     // only keep the top 10 scores
     scores = scores.slice(0, 10);
 
     // save the scores back to local storage
-    localStorage.setItem('scores', JSON.stringify(scores));
+    storageSetItem('scores', JSON.stringify(scores));
 
     // populate the leaderboard table
     const leaderboard = document.querySelector('#leaderboard');
@@ -638,7 +638,7 @@ function handleGameOver()
     const dateHeader = document.createElement('th');
 
     rankHeader.innerText = 'Rank';
-    scoreHeader.innerText = 'Score';
+    scoreHeader.innerText = 'Length';
     dateHeader.innerText = 'Date';
 
     header.appendChild(rankHeader);
@@ -654,7 +654,7 @@ function handleGameOver()
         const date = document.createElement('td');
 
         rank.innerText = idx + 1;
-        scoreCell.innerText = score.score;
+        scoreCell.innerText = score.length;
         date.innerText = new Date(score.date).toLocaleDateString();
 
         row.appendChild(rank);
