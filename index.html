@@ -230,6 +230,26 @@
                 pointer-events: auto;
             }
 
+            #copyright {
+                position: absolute;
+                bottom: env(safe-area-inset-bottom);
+                left: 0;
+                right: 0;
+                margin-left: auto;
+                margin-right: auto;
+
+                color: rgba(255,255,255,0.25);
+                font-family: Arial;
+                font-size: 10px;
+                padding: 10px;
+                text-align: center;
+
+                display: none
+            }
+            .menu-overlay-active #copyright {
+                display: block;
+            }
+
             #leaderboard {
                 border-collapse: collapse;
                 width: 100%;
@@ -368,7 +388,7 @@
 
     </head>
 
-    <body class="prevent-highlight prevent-tap-highlight">
+    <body class="prevent-highlight prevent-tap-highlight menu-overlay-active">
         <!-- <script type="text/javascript" src="js/detectmobilebrowser.js"></script> -->
 
         <!-- Import maps polyfill -->
@@ -609,6 +629,9 @@
                 <button target-menu="menu-options" class="formfactor-desktop">Options</button>
                 <button class="button-tutorial">Restart Tutorial</button>
             </div>
+
+            <div id="copyright">
+                <p>© <a href="https://chrisraff.com">Chris Raff</a> 2024 </p>
         </div>
     </body>
 </html>
