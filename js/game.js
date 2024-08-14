@@ -697,6 +697,11 @@ function handleGameOver()
     if (focusRow) {
         focusRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+
+    gtag('event', 'snake_gameover', {
+        'event_category': '3d-snake',
+        'value': game.nodes.length
+    });
 }
 
 function handleInvalidMove()
