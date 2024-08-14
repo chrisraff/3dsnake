@@ -60,6 +60,13 @@ var tickEnabled = true;
 const damageColor = new THREE.Color(0.1, 0.0, 0.0);
 const blackColor = new THREE.Color(0.0, 0.0, 0.0);
 
+// user colors
+const userColors = [
+    new THREE.Color(0.05, 0.05, 1.0),
+    new THREE.Color(0.05, 0.25, 1.0)
+];
+var userColorMaterials;
+
 function init() {
 
     renderer = new THREE.WebGLRenderer( { antialias: true, powerPreference: "high-performance" } );
@@ -93,6 +100,8 @@ function init() {
     // materials;
     cubeMaterial = new THREE.MeshLambertMaterial( {color: '#cccccc' } );
     foodMaterial = new THREE.MeshLambertMaterial( {color: '#ff0000' } );
+
+    userColorMaterials = generateGradientFromUserColors();
 
     const vertexShader = document.querySelector('#vertexShader').textContent;
     const fragmentShader = document.querySelector('#fragmentShader').textContent;
@@ -139,6 +148,7 @@ function init() {
     // setup game event listeners
     game.addEventListener('gameOver', handleGameOver);
     game.addEventListener('invalidMove', handleInvalidMove);
+    game.addEventListener('foodEaten', handleFoodEaten);
 
     // setup window resize handlers
     window.addEventListener( 'resize', onWindowResize, false );
@@ -246,6 +256,24 @@ function setMobileControls(isMobile)
 
 }
 
+function generateGradientFromUserColors()
+{
+    const numSteps = 4;
+    const colors = [];
+    for (let i = 0; i < userColors.length; i++)
+    {
+        const startColor = userColors[i];
+        const endColor = userColors[(i + 1) % userColors.length];
+        for (let j = 0; j < numSteps; j++)
+        {
+            const material = new THREE.MeshLambertMaterial({ color: startColor.clone().lerp(endColor, j / numSteps) });
+            colors.push(material);
+        }
+    }
+
+    return colors;
+}
+
 function pauseGame()
 {
     if (!playing)
@@ -292,6 +320,12 @@ function initGame()
     for (let i = 0; i < game.nodes.length; i++)
     {
         scene.add(game.nodes[i]);
+    }
+
+    // set the nodes to the correct color
+    for (let i = 0; i < game.nodes.length; i++)
+    {
+        game.nodes[i].material = userColorMaterials[i % userColorMaterials.length];
     }
 
     orientationRadian = 0;
@@ -606,6 +640,12 @@ function updateOrientationAngle(delta)
         orientationRadian += rotateAmount;
     }
     rotateNode.rotation.y = orientationRadian;
+}
+
+function handleFoodEaten()
+{
+    // set the new color for the node
+    game.nodes[game.nodes.length - 1].material = userColorMaterials[game.nodes.length % userColorMaterials.length];
 }
 
 function handleGameOver()

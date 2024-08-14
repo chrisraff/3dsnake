@@ -146,6 +146,8 @@ class SnakeGame extends EventTarget {
             this.removeFood(idx);
 
             this.spawnFood();
+
+            this.dispatchEvent(new Event('foodEaten'));
         }
 
         // check for bounds increase
