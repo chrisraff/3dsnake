@@ -24,10 +24,8 @@
 
             #lower-left-quarter {
                 position: absolute;
-                bottom: 0;
-                left: 0;
-
-                margin: 10px;
+                bottom: calc(10px + env(safe-area-inset-bottom));
+                left: calc(10px + env(safe-area-inset-left));
             }
             #snake-lives {
                 display: flex;
@@ -42,6 +40,7 @@
                 display: flex;
                 justify-content: center;
                 pointer-events: none;
+                overflow-y: auto;
             }
             #menu-overlay > * {
                 pointer-events: auto;
@@ -67,7 +66,12 @@
                 font-weight: bold;
             }
 
-            .menu button {
+            .scrollable-y {
+                height: 100%;
+                overflow-y: auto;
+            }
+
+            button {
                 background-color: transparent;
                 color: white;
                 border: 2px solid white;
@@ -78,8 +82,9 @@
                 transition: background-color 0.3s ease;
                 outline: none;
                 align-self: center;
+                pointer-events: auto;
             }
-            .menu button:disabled {
+            button:disabled {
                 background-color: rgba(128, 128, 128, 0.2);
                 color: rgba(200, 200, 200, 0.75);
                 border-color: #888888;
@@ -92,7 +97,7 @@
                 padding: 10px 20px;
             }
 
-            .menu button:hover {
+            button:hover {
                 background-color: rgba(255, 255, 255, 0.2);
             }
 
@@ -217,6 +222,10 @@
                 cursor: pointer;
             }
 
+            body.menu-overlay-active .touch-controls {
+                visibility: hidden;
+            }
+
             #menu-gameover.menu.menu-active {
                 display: flex;
                 flex-direction: column;
@@ -244,10 +253,12 @@
                 padding: 10px;
                 text-align: center;
 
-                display: none
+                display: block;
+
+                visibility: hidden;
             }
             .menu-overlay-active #copyright {
-                display: block;
+                visibility: visible;
             }
 
             #leaderboard {
@@ -287,12 +298,21 @@
             }
 
             .hide {
-                display: none;
+                visibility: hidden;
             }
 
             .tutorial-text {
                 position: absolute;
-                top: 50%;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+
                 text-align: center;
                 width: 100%;
 
@@ -303,6 +323,10 @@
                 animation-iteration-count: 1;
 
                 pointer-events: none;
+            }
+
+            body.formfactor-touchfirst .tutorial-text {
+                font-size: 20pt;
             }
 
             .menu-overlay-active .tutorial-text {
@@ -514,19 +538,19 @@
 
         <button class="pause-button formfactor-touchfirst" id="pauseButton"></button>
 
-        <div class="dpad formfactor-touchfirst touch-controls hide">
+        <div class="dpad formfactor-touchfirst touch-controls">
             <div target-action="actionUp" class="button dpad-up">↑</div>
             <div target-action="actionRight" class="button dpad-right">→</div>
             <div target-action="actionDown" class="button dpad-down">↓</div>
             <div target-action="actionLeft" class="button dpad-left">←</div>
         </div>
 
-        <div class="inoutpad formfactor-touchfirst touch-controls hide">
+        <div class="inoutpad formfactor-touchfirst touch-controls">
             <div target-action="actionIn" class="button dpad-in">↑</div>
             <div target-action="actionOut" class="button dpad-out">↓</div>
         </div>
 
-        <div class="rotatepad formfactor-touchfirst touch-controls hide">
+        <div class="rotatepad formfactor-touchfirst touch-controls">
             <div target-action="actionRotateLeft" class="button dpad-rotate-left">↺</div>
             <div target-action="actionRotateRight" class="button dpad-rotate-right">↻</div>
         </div>
@@ -555,9 +579,15 @@
             <span class="formfactor-desktop">Move the mouse to look around</span>
             <span class="formfactor-touchfirst">Swipe the screen to look around</span>
         </div>
-        <div id="tutorial-info-lives" class="tutorial-text hide">
+        <div id="tutorial-info-lives" class="tutorial-text hide scrollable-y">
             <p>Lives are shown in the bottom left corner.</p>
             <p>You lose lives by running into yourself and going out of bounds.</p>
+
+            <button id="buttonCompleteTutorial" class="hide">Press to Complete Tutorial</button>
+        </div>
+
+        <div id="copyright">
+            <p>© <a href="https://chrisraff.com" target="_blank">Chris Raff</a> 2024 </p>
         </div>
 
         <div id="menu-overlay">
@@ -576,6 +606,7 @@
 
                 <button class="button-back button-main">Back</button>
                 <button target-menu="menu-bindings">Edit Controls</button>
+                <button class="button-tutorial">Play Tutorial</button>
             </div>
 
             <div id="menu-bindings" class="menu">
@@ -672,9 +703,6 @@
                 <button target-menu="menu-options" class="formfactor-desktop">Options</button>
                 <button class="button-tutorial">Restart Tutorial</button>
             </div>
-
-            <div id="copyright">
-                <p>© <a href="https://chrisraff.com" target="_blank">Chris Raff</a> 2024 </p>
         </div>
     </body>
 </html>

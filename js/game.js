@@ -200,8 +200,11 @@ function init() {
         let isScrollableElement = false;
 
         while (targetElement !== null) {
-            if (targetElement.classList.contains('leaderboard-container')) {
-            isScrollableElement = true;
+            const isLeaderboard = targetElement.classList.contains('leaderboard-container');
+            const isTutorialText = targetElement.classList.contains('tutorial-text');
+            const isMenu = targetElement.id == 'menu-overlay';
+            if (isLeaderboard || isTutorialText || isMenu) {
+                isScrollableElement = true;
             break;
             }
             targetElement = targetElement.parentElement;
@@ -290,21 +293,12 @@ function setPlaying(isPlaying)
     if (playing)
     {
         setMenu(null);
-        // unhide the mobile controls
-        document.querySelectorAll('.touch-controls').forEach(touchControls => {
-            touchControls.classList.remove('hide');
-        });
 
         moveLoopTimeoutId = setTimeout(moveLoop, tickInterval);
     }
     else
     {
         clearTimeout(moveLoopTimeoutId);
-
-        // hide the mobile controls
-        document.querySelectorAll('.touch-controls').forEach(touchControls => {
-            touchControls.classList.add('hide');
-        });
     }
 }
 
@@ -973,33 +967,36 @@ function handleTutorial()
                 tickEnabled = false;
 
             // check if enough time has passed
-            if (Date.now() - tutorialData.lastLoggedTime > 7000)
+            if (Date.now() - tutorialData.lastLoggedTime > 5000)
             {
-                tickEnabled = true;
+                tickEnabled = false;
 
-                tutorialData.state = 'finalFadeout';
+                tutorialData.state = 'finalButton';
                 tutorialData.lastLoggedTime = Date.now();
 
-                document.querySelector('#tutorial-info-lives').style.animationName = 'tutorial-text-fade-out';
-                document.querySelector('#tutorial-info-lives').style.animationFillMode = 'forwards';
+                document.querySelector('#buttonCompleteTutorial').classList.remove('hide');
             }
         }
         break;
-        case 'finalFadeout':
+        case 'finalButton':
         {
-            // check if 0.5 seconds have passed
-            if (Date.now() - tutorialData.lastLoggedTime > 500)
+            // If 20 seconds have passed, finish the tutorial for the user
+            if (Date.now() - tutorialData.lastLoggedTime > 20 * 1000)
             {
-                // complete the tutorial
-                resetTutorial(true);
-
-                storageSetItem('lastPlayed', Date.now());
-                setMenu('menu-tutorial-complete');
-                setPlaying(false);
+                completeTutorial()
             }
         }
         break;
     }
+}
+
+function completeTutorial()
+{
+    resetTutorial(true);
+
+    storageSetItem('lastPlayed', Date.now());
+    setMenu('menu-tutorial-complete');
+    setPlaying(false);
 }
 
 function resetTutorial(complete = false)
@@ -1010,10 +1007,18 @@ function resetTutorial(complete = false)
     }
 
     // reenable all actions
-    keybinds.keyBindings.actionIn.action = tutorialData.inAction;
-    keybinds.keyBindings.actionOut.action = tutorialData.outAction;
-    keybinds.keyBindings.actionRotateLeft.action = tutorialData.rotateLeftAction;
-    keybinds.keyBindings.actionRotateRight.action = tutorialData.rotateRightAction;
+    if (tutorialData.inAction !== undefined) {
+        keybinds.keyBindings.actionIn.action = tutorialData.inAction;
+    }
+    if (tutorialData.outAction !== undefined) {
+        keybinds.keyBindings.actionOut.action = tutorialData.outAction;
+    }
+    if (tutorialData.rotateLeftAction !== undefined) {
+        keybinds.keyBindings.actionRotateLeft.action = tutorialData.rotateLeftAction;
+    }
+    if (tutorialData.rotateRightAction !== undefined) {
+        keybinds.keyBindings.actionRotateRight.action = tutorialData.rotateRightAction;
+    }
     document.querySelector('.inoutpad').classList.remove('hide');
     document.querySelector('.rotatepad').classList.remove('hide');
 
@@ -1023,6 +1028,9 @@ function resetTutorial(complete = false)
         element.style.animationName = '';
     });
     document.querySelector('#snake-lives').style.animationName = '';
+    document.querySelector('#buttonCompleteTutorial').classList.add('hide');
+
+    tickEnabled = true;
 }
 
 var animate = function ()
@@ -1127,7 +1135,8 @@ document.addEventListener('fullscreenchange', (event) => {
 document.querySelectorAll('.button-tutorial').forEach(button => {
     button.onclick = () =>
     {
-        showTutorial = true;
+        resetTutorial();
+        initTutorial();
         onClickStart();
     }
 });
@@ -1138,6 +1147,8 @@ document.querySelectorAll('.pause-button').forEach(button => {
         pauseGame();
     }
 });
+
+document.querySelector('#buttonCompleteTutorial').onclick = completeTutorial;
 
 document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
