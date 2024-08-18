@@ -119,6 +119,7 @@ function init() {
 
     // set up lights
     let localLight = new THREE.PointLight( 0xffffff, 100 );
+    localLight.decay = 1.5;
     camera.add( localLight );
     rotateNode.add( camera );
     let ambLight = new THREE.AmbientLight( 0x808080 );
@@ -1115,6 +1116,14 @@ document.querySelectorAll('.button-fullscreen').forEach(button => {
         }
     }
 });
+
+document.addEventListener('fullscreenchange', (event) => {
+    const fullscreenButtons = document.querySelectorAll('.button-fullscreen');
+    fullscreenButtons.forEach(button => {
+        button.innerText = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
+    });
+});
+
 document.querySelectorAll('.button-tutorial').forEach(button => {
     button.onclick = () =>
     {
@@ -1123,11 +1132,18 @@ document.querySelectorAll('.button-tutorial').forEach(button => {
     }
 });
 
-document.addEventListener('fullscreenchange', (event) => {
-    const fullscreenButtons = document.querySelectorAll('.button-fullscreen');
-    fullscreenButtons.forEach(button => {
-        button.innerText = document.fullscreenElement ? 'Exit Fullscreen' : 'Fullscreen';
-    });
+document.querySelectorAll('.pause-button').forEach(button => {
+    button.onclick = () =>
+    {
+        pauseGame();
+    }
+});
+
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // The page is being hidden, pause the game
+        pauseGame();
+    }
 });
 
 // ====

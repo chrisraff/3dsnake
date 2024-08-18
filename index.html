@@ -374,6 +374,46 @@
                     background: rgba(255, 255, 255, 0.0);
                 }
             }
+
+            #pauseButton {
+                top: calc(5px + env(safe-area-inset-top));
+                left: calc(5px + env(safe-area-inset-left));
+                position: absolute;
+            }
+
+            .pause-button {
+                width: 40px;
+                height: 40px;
+                background-color: transparent;
+                border: 1px solid transparent;
+                position: relative;
+                cursor: pointer;
+                outline: none;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .menu-overlay-active .pause-button {
+                display: none;
+            }
+
+            .pause-button::before,
+            .pause-button::after {
+                content: "";
+                display: block;
+                width: 7px;
+                height: 24px;
+                background-color: #fff;
+            }
+
+            .pause-button::before {
+                transform: translateX(-4px);
+            }
+
+            .pause-button::after {
+                transform: translateX(4px);
+            }
         </style>
 
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -471,6 +511,8 @@
                 <div class="snake-life" snake-life-idx="2">🟩</div>
             </div>
         </div>
+
+        <button class="pause-button formfactor-touchfirst" id="pauseButton"></button>
 
         <div class="dpad formfactor-touchfirst touch-controls hide">
             <div target-action="actionUp" class="button dpad-up">↑</div>
@@ -606,7 +648,8 @@
                 <h2>Paused</h2>
 
                 <button class="button-main button-resume">Resume</button>
-                <button target-menu="menu-options">Options</button>
+                <button target-menu="menu-options" class="formfactor-desktop">Options</button>
+                <button class="button-fullscreen formfactor-touchfirst">Fullscreen</button>
             </div>
 
             <div id="menu-gameover" class="menu">
