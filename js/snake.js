@@ -12,6 +12,7 @@ class SnakeGame extends EventTarget {
 
         this.nodes = [];
         this.foodNodes = [];
+        this.oldFoodNodes = [];
         this.direction = new THREE.Vector3();
         this.nextDirection = new THREE.Vector3();
         this.startLength = 4;
@@ -27,6 +28,21 @@ class SnakeGame extends EventTarget {
             375: [11, 11, 11],
             800: [13, 13, 13]
         }
+
+        this.foodAgeInit = Infinity;
+        this.foodAgeRamp = {
+            15: 50,
+            40: 30,
+            70: 20,
+            100: 10
+        }
+
+        this.foodPulseRamp = {
+            30: 1,
+            12: 2,
+            4: 5
+        }
+        this.foodPulseStart = 20;
 
         this.isMakingInvalidMove = false;
     }
@@ -45,10 +61,12 @@ class SnakeGame extends EventTarget {
         }
         this.nodes = [];
         this.foodNodes = [];
+        this.oldFoodNodes = [];
         this.lifeCount = 3;
         this.isMakingInvalidMove = false;
 
         this.foodBounds = [5, 5, 5];
+        this.foodAgeInit = Infinity;
 
         for (let i = 0; i < this.startLength; i++)
         {
@@ -70,6 +88,9 @@ class SnakeGame extends EventTarget {
         this.foodNodes.forEach(element => {
             element.removeFromParent();
         });
+        this.oldFoodNodes.forEach(element => {
+            element.removeFromParent();
+        });
     }
 
     spawnFood = function()
@@ -87,6 +108,27 @@ class SnakeGame extends EventTarget {
 
         this.foodNodes[idx].position.copy(tmpVector);
         this.context.scene.add(this.foodNodes[idx]);
+
+        // set food age
+        const v1 = tmpVector;
+        const v2 = this.nodes[0].position;
+
+        const l1distance = 1 + Math.abs(v1.x - v2.x) + Math.abs(v1.y - v2.y) + Math.abs(v1.z - v2.z);
+        this.foodNodes[idx].foodAge = l1distance + Math.floor((1 + Math.random()) * this.foodAgeInit);
+
+        // Set pulse frequency based on the ramp
+        const age = this.foodNodes[idx].foodAge;
+        let frequency = undefined; // Default value if age is above all ramp values
+    
+        for (const ageThreshold in this.foodPulseRamp) {
+            if (age <= ageThreshold) {
+                frequency = this.foodPulseRamp[ageThreshold];
+            }
+        }
+    
+        // Set the frequency to the food node
+        this.foodNodes[idx].pulseFrequency = frequency;
+        this.foodNodes[idx].pulseTimer = 0;
     }
 
     tick = function()
@@ -106,17 +148,7 @@ class SnakeGame extends EventTarget {
         this.isMakingInvalidMove = this.isMakingInvalidMove || this.outOfBounds(tmpVector);
         if (this.isMakingInvalidMove)
         {
-            if (this.damageCooldown == 0)
-            {
-                this.lifeCount -= 1;
-                this.dispatchEvent(new Event('invalidMove'));
-                this.damageCooldown = 3;
-            }
-
-            if (this.lifeCount == 0)
-            {
-                this.dispatchEvent(new Event('gameOver'));
-            }
+            this.loseLife();
 
             // do not execute any further steps this tick
             return;
@@ -145,15 +177,76 @@ class SnakeGame extends EventTarget {
 
             this.removeFood(idx);
 
-            this.spawnFood();
-
             this.dispatchEvent(new Event('foodEaten'));
+
+            // check for foodAge change
+            if (this.foodAgeRamp[this.nodes.length] != undefined)
+            {
+                this.foodAgeInit = this.foodAgeRamp[this.nodes.length];
+            }
+            // check for bounds increase
+            if (this.foodBoundsRamp[this.nodes.length] != undefined)
+            {
+                this.foodBounds = this.foodBoundsRamp[this.nodes.length];
+            }
+
+            this.spawnFood();
         }
 
-        // check for bounds increase
-        if (this.foodBoundsRamp[this.nodes.length] != undefined)
+        // check for old food collision
+        const idx1 = this.intersectsOldFood(this.nodes[0].position);
+        if (idx1 != null)
         {
-            this.foodBounds = this.foodBoundsRamp[this.nodes.length];
+            this.loseLife()
+            this.removeOldFood(idx1);
+        }
+
+        // track age of food
+        for (let i = 0; i < this.foodNodes.length; i++)
+        {
+            const foodNode = this.foodNodes[i];
+            foodNode.foodAge -= 1;
+
+            // update food visuals
+            if (foodNode.foodAge > this.foodPulseStart)
+                continue;
+
+            const newFrequency = this.foodPulseRamp[foodNode.foodAge];
+            if (newFrequency != undefined &&
+                foodNode.pulseFrequency != newFrequency)
+            {
+                foodNode.pulseFrequency = newFrequency;
+                foodNode.pulseTimer = 0;
+            }
+
+            // check if food expired
+            if (foodNode.foodAge <= 0)
+            {
+                // switch this food to an old food
+                const idx = this.oldFoodNodes.length;
+                this.oldFoodNodes[idx] = new THREE.Mesh(this.context.cubeGeometry, this.context.oldFoodMaterial);
+
+                this.oldFoodNodes[idx].position.copy(foodNode.position);
+                this.oldFoodNodes[idx].foodAge = Math.floor((Math.random() + 1) * (this.nodes.length + 1))
+                this.context.scene.add(this.oldFoodNodes[idx]);
+
+                // spawn new food
+                this.removeFood(i);
+                i -= 1;
+                this.spawnFood();
+            }
+        }
+
+        // track age of old food
+        for (let i = 0; i < this.oldFoodNodes.length; i++)
+        {
+            this.oldFoodNodes[i].foodAge -= 1;
+            if (this.oldFoodNodes[i].foodAge <= 0)
+            {
+                // delete this food
+                this.removeOldFood(i);
+                i -= 1;
+            }
         }
     }
 
@@ -163,7 +256,13 @@ class SnakeGame extends EventTarget {
         this.foodNodes.splice(idx, 1);
     }
 
-    updateDirection(x, y, z)
+    removeOldFood = function(idx)
+    {
+        this.oldFoodNodes[idx].removeFromParent();
+        this.oldFoodNodes.splice(idx, 1);
+    }
+
+    updateDirection = function(x, y, z)
     {
         // don't allow the player to go backwards into themselves
         if (this.direction.x == -x && this.direction.y == -y && this.direction.z == -z)
@@ -175,9 +274,24 @@ class SnakeGame extends EventTarget {
         this.nextDirection.set(x, y, z);
     }
 
+    loseLife = function()
+    {
+        if (this.damageCooldown == 0)
+        {
+            this.lifeCount -= 1;
+            this.dispatchEvent(new Event('lifeLost'));
+            this.damageCooldown = 3;
+        }
+
+        if (this.lifeCount == 0)
+        {
+            this.dispatchEvent(new Event('gameOver'));
+        }
+    }
+
     intersectsAny = function(vec)
     {
-        return this.intersectsSnake(vec) || (this.intersectsFood(vec) != null);
+        return this.intersectsSnake(vec) || (this.intersectsFood(vec) != null) || (this.intersectsOldFood(vec) != null);
     }
 
     intersectsSnake = function(vec)
@@ -197,6 +311,18 @@ class SnakeGame extends EventTarget {
         for (let i = 0; i < this.foodNodes.length; i++)
         {
             if (this.foodNodes[i].position.equals(vec))
+            {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    intersectsOldFood = function(vec)
+    {
+        for (let i = 0; i < this.oldFoodNodes.length; i++)
+        {
+            if (this.oldFoodNodes[i].position.equals(vec))
             {
                 return i;
             }

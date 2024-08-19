@@ -47,6 +47,7 @@ var isRecordingBinding = false;
 
 var cubeMaterial;
 var foodMaterial;
+var oldFoodMaterial;
 var boundsMaterial;
 
 var boundsMesh;
@@ -98,8 +99,9 @@ function init() {
     tmpColor = new THREE.Color();
 
     // materials;
-    cubeMaterial = new THREE.MeshLambertMaterial( {color: '#cccccc' } );
-    foodMaterial = new THREE.MeshLambertMaterial( {color: '#ff0000' } );
+    cubeMaterial = new THREE.MeshLambertMaterial( {color: '#ccc' } );
+    foodMaterial = new THREE.MeshLambertMaterial( {color: '#d55e00' } );
+    oldFoodMaterial = new THREE.MeshLambertMaterial( {color: '#009e73' });
 
     userColorMaterials = generateGradientFromUserColors();
 
@@ -142,13 +144,14 @@ function init() {
         'cubeGeometry': cube_geometry,
         'material': cubeMaterial,
         'foodMaterial': foodMaterial,
+        'oldFoodMaterial': oldFoodMaterial,
         'boundsMesh': boundsMesh,
         'scene': scene
     }
 
     // setup game event listeners
     game.addEventListener('gameOver', handleGameOver);
-    game.addEventListener('invalidMove', handleInvalidMove);
+    game.addEventListener('lifeLost', handleLifeLost);
     game.addEventListener('foodEaten', handleFoodEaten);
 
     // setup window resize handlers
@@ -637,6 +640,32 @@ function updateOrientationAngle(delta)
     rotateNode.rotation.y = orientationRadian;
 }
 
+function updateFoodVisuals(delta)
+{
+    const pulseAddition = document.body.classList.contains('formfactor-touchfirst') ? 0.2 : 0.1;
+    for (let i = 0; i < game.foodNodes.length; i++)
+    {
+        const foodNode = game.foodNodes[i];
+        if (foodNode.foodAge > game.foodPulseStart)
+            continue;
+
+        if (!playing)
+            continue;
+
+        if (foodNode.pulseFrequency === undefined)
+            continue;
+
+        foodNode.pulseTimer += delta * foodNode.pulseFrequency;
+        while (foodNode.pulseTimer > 1)
+            foodNode.pulseTimer -= 1;
+
+        const rampDown = Math.pow(foodNode.pulseTimer - 1, 4);
+        const pulseScale = 1 + pulseAddition * rampDown;
+
+        foodNode.scale.set(pulseScale, pulseScale, pulseScale);
+    }
+}
+
 function handleFoodEaten()
 {
     // set the new color for the node
@@ -739,7 +768,7 @@ function handleGameOver()
     });
 }
 
-function handleInvalidMove()
+function handleLifeLost()
 {
     // update the relevant life icon
     document.querySelector(`.snake-life[snake-life-idx='${game.lifeCount}']`).innerText = '⬛';
@@ -1040,6 +1069,7 @@ var animate = function ()
     updateCameraPosition();
     updateBackgroundColor();
     updateOrientationAngle(delta);
+    updateFoodVisuals(delta);
 
     if (tutorialData.inTutorial)
     {
