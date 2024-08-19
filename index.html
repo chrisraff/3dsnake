@@ -37,6 +37,13 @@
                 font-size: 30pt;
             }
 
+            #lower-right-quarter {
+                position: absolute;
+                bottom: calc(10px + env(safe-area-inset-bottom));
+                right: calc(10px + env(safe-area-inset-right));
+                margin: auto;
+            }
+
             #menu-overlay {
                 position: absolute;
                 width: 100%;
@@ -250,18 +257,21 @@
                 right: 0;
                 margin-left: auto;
                 margin-right: auto;
+            }
 
+            .small-details {
                 color: rgba(255,255,255,0.25);
                 font-family: Arial;
                 font-size: 10px;
                 padding: 10px;
                 text-align: center;
+                margin: auto;
 
                 display: block;
 
                 visibility: hidden;
             }
-            .menu-overlay-active #copyright {
+            .menu-overlay-active .small-details {
                 visibility: visible;
             }
 
@@ -590,8 +600,12 @@
             <button id="buttonCompleteTutorial" class="hide">Press to Complete Tutorial</button>
         </div>
 
-        <div id="copyright">
+        <div id="copyright" class="small-details">
             <p>© <a href="https://chrisraff.com" target="_blank">Chris Raff</a> 2024 </p>
+        </div>
+        
+        <div id="lower-right-quarter">
+            <p class="small-details">Version 0.0.0</p>
         </div>
 
         <div id="menu-overlay">
